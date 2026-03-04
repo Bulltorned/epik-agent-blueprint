@@ -3,1160 +3,923 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EPIK AI System — Full Blueprint</title>
+<title>EPIK AI System — Blueprint + Governance</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Oxanium:wght@300;400;600;700;800&display=swap');
 
 :root {
-  --bg:       #04060A;
-  --s1:       #080C14;
-  --s2:       #0C1220;
-  --s3:       #111B2E;
-  --border:   #182436;
-  --border2:  #223350;
-  --text:     #C8D8EC;
-  --muted:    #3D5470;
-  --dim:      #1A2840;
-
-  --orch:   #00FFB2;
-  --dev:    #4D9EFF;
-  --media:  #FF8C42;
-  --rnd:    #3DFFA0;
-  --qa:     #FF3D6B;
-  --mem:    #FFD166;
-  --human:  #C084FC;
-  --auto:   #00FFB2;
-  --async:  #38BDF8;
+  --bg:#04060A; --s1:#080C14; --s2:#0C1220; --s3:#111B2E;
+  --border:#182436; --border2:#223350; --text:#C8D8EC; --muted:#3D5470; --dim:#1A2840;
+  --orch:#00FFB2; --dev:#4D9EFF; --media:#FF8C42; --rnd:#3DFFA0;
+  --qa:#FF3D6B; --mem:#FFD166; --human:#C084FC; --auto:#00FFB2; --async:#38BDF8;
+  --gov:#F472B6; --reg:#FB923C; --dep:#94A3B8;
 }
-
 *{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Oxanium',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(0,255,178,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,178,0.018) 1px,transparent 1px);background-size:48px 48px;}
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Oxanium', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+/* ── NAV ── */
+.top-nav{position:sticky;top:0;z-index:100;background:rgba(4,6,10,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:stretch;}
+.nav-brand{padding:0 24px;display:flex;align-items:center;gap:10px;border-right:1px solid var(--border);}
+.nav-brand-dot{width:8px;height:8px;border-radius:50%;background:var(--orch);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,255,178,0.4);}50%{box-shadow:0 0 0 6px rgba(0,255,178,0);}}
+.nav-brand-text{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--orch);letter-spacing:2px;}
+.nav-tabs{display:flex;flex:1;}
+.nav-tab{padding:0 24px;display:flex;align-items:center;gap:8px;cursor:pointer;border-right:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;transition:all 0.2s;border-bottom:2px solid transparent;white-space:nowrap;}
+.nav-tab:hover{color:var(--text);background:var(--s1);}
+.nav-tab.active{color:var(--text);border-bottom-color:var(--tab-color,var(--orch));background:var(--s1);}
+.nav-tab-num{font-size:8px;opacity:0.5;}
+.nav-version{padding:0 20px;display:flex;align-items:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;border-left:1px solid var(--border);}
 
-/* scanline overlay */
-body::before {
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.08) 2px,
-    rgba(0,0,0,0.08) 4px
-  );
-}
+/* ── VIEWS ── */
+.view{display:none;position:relative;z-index:1;}
+.view.active{display:block;}
 
-/* grid */
-body::after {
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background-image:
-    linear-gradient(rgba(0,255,178,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,255,178,0.025) 1px, transparent 1px);
-  background-size: 48px 48px;
-}
+/* ══════════════════════════════════════
+   TAB 1: BLUEPRINT
+══════════════════════════════════════ */
+.page-header{padding:40px 40px 28px;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+.ph-eyebrow{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--orch);text-transform:uppercase;margin-bottom:8px;}
+.ph-title{font-size:clamp(20px,3vw,36px);font-weight:800;line-height:1.1;}
+.ph-title span{color:var(--orch);}
+.legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;}
+.leg-item{display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);}
+.leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.leg-line{width:20px;height:2px;flex-shrink:0;}
 
-.canvas { position:relative; z-index:1; }
+.main{display:grid;grid-template-columns:180px 1fr;}
+.layer-labels{grid-column:1;display:flex;flex-direction:column;border-right:1px solid var(--border);}
+.layer-label{display:flex;align-items:center;justify-content:flex-end;padding:0 16px;border-bottom:1px solid var(--border);position:relative;}
+.layer-label::after{content:'';position:absolute;right:-5px;top:50%;transform:translateY(-50%);width:8px;height:8px;border-radius:50%;background:var(--ll-color,var(--border2));border:1px solid var(--bg);z-index:2;}
+.ll-text{text-align:right;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--ll-color,var(--muted));line-height:1.5;}
+.pipeline-col{grid-column:2;display:flex;flex-direction:column;}
+.bp-row{border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:10px;min-height:72px;position:relative;}
+.orch-row{background:rgba(0,255,178,0.025);}
+.orch-node{background:var(--s2);border:1px solid var(--orch);border-radius:10px;padding:12px 18px;flex:1;max-width:480px;margin:0 auto;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.2s;box-shadow:0 0 20px rgba(0,255,178,0.07);position:relative;overflow:hidden;}
+.orch-node::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,255,178,0.05) 0%,transparent 60%);}
+.orch-node:hover{box-shadow:0 0 32px rgba(0,255,178,0.16);}
+.on-icon{font-size:22px;}
+.on-name{font-size:14px;font-weight:700;color:var(--orch);}
+.on-desc{font-size:9px;color:var(--muted);margin-top:2px;font-family:'Share Tech Mono',monospace;letter-spacing:1px;}
+.routing-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.rbadge{font-family:'Share Tech Mono',monospace;font-size:7px;padding:2px 6px;border-radius:3px;background:rgba(0,255,178,0.07);border:1px solid rgba(0,255,178,0.18);color:var(--orch);}
+.domain-row{gap:8px;flex-wrap:wrap;}
+.domain-node{flex:1;min-width:130px;background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:12px 14px;position:relative;cursor:pointer;transition:all 0.2s;overflow:hidden;}
+.domain-node::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--dn-color,var(--border2));}
+.domain-node:hover{border-color:var(--dn-color,var(--border2));transform:translateY(-2px);}
+.dn-label{font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--dn-color);margin-bottom:4px;}
+.dn-name{font-size:12px;font-weight:700;margin-bottom:2px;}
+.dn-sub{font-size:9px;color:var(--muted);line-height:1.5;}
+.pipelines-area{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border);}
+.pipe-col{border-right:1px solid var(--border);display:flex;flex-direction:column;}
+.pipe-col:last-child{border-right:none;}
+.pipe-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;background:var(--s1);}
+.pipe-header-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.pipe-header-name{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;}
+.agent-step{padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;position:relative;}
+.agent-step:hover{background:var(--s2);}
+.agent-step.active{background:var(--s3);}
+.as-connector{position:absolute;left:20px;top:-7px;width:1px;height:7px;background:var(--border2);}
+.as-connector::after{content:'';position:absolute;bottom:-3px;left:-3px;border-left:3px solid transparent;border-right:3px solid transparent;border-top:4px solid var(--border2);}
+.as-top{display:flex;align-items:center;gap:7px;}
+.as-icon{font-size:13px;flex-shrink:0;}
+.as-name{font-size:10px;font-weight:700;}
+.as-role{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--muted);letter-spacing:1px;margin-top:1px;}
+.as-gate-badge{margin-left:auto;flex-shrink:0;font-family:'Share Tech Mono',monospace;font-size:7px;padding:2px 5px;border-radius:3px;letter-spacing:1px;}
+.gate-auto{background:rgba(0,255,178,0.1);border:1px solid rgba(0,255,178,0.25);color:var(--auto);}
+.gate-human{background:rgba(192,132,252,0.1);border:1px solid rgba(192,132,252,0.25);color:var(--human);}
+.gate-async{background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);color:var(--async);}
+.qa-step{padding:7px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:7px;background:rgba(255,61,107,0.03);}
+.qa-step-icon{font-size:11px;flex-shrink:0;margin-top:1px;}
+.qa-step-text{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--qa);letter-spacing:1px;line-height:1.6;}
+.qa-retry{font-family:'Share Tech Mono',monospace;font-size:6px;color:var(--muted);margin-top:1px;letter-spacing:1px;}
+.loop-step{padding:5px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:5px;background:rgba(77,158,255,0.03);}
+.loop-step-text{font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:1px;}
+.human-step{padding:7px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;background:rgba(192,132,252,0.03);}
+.human-step-text{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--human);letter-spacing:1px;line-height:1.5;}
+.detail-panel{background:var(--s2);border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);padding:24px 28px;display:none;animation:slidedown 0.2s ease;}
+.detail-panel.show{display:block;}
+@keyframes slidedown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.dp-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;}
+.dp-title{font-size:15px;font-weight:700;}
+.dp-sub{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;margin-top:2px;text-transform:uppercase;}
+.dp-close{background:none;border:1px solid var(--border2);color:var(--muted);cursor:pointer;padding:3px 9px;border-radius:4px;font-family:'Share Tech Mono',monospace;font-size:9px;}
+.dp-close:hover{border-color:var(--qa);color:var(--qa);}
+.dp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.dp-col h5{font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--dp-color,var(--orch));margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+.dp-col ul{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.dp-col ul li{font-size:10px;color:var(--muted);padding-left:12px;position:relative;line-height:1.6;}
+.dp-col ul li::before{content:'›';position:absolute;left:0;color:var(--dp-color,var(--orch));}
+.dp-col ul li strong{color:var(--text);}
+.dp-rubric{margin-top:14px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px 14px;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--async);line-height:1.9;}
+.dp-rubric-title{color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;font-size:7px;}
+.error-row{padding:10px 20px;display:flex;align-items:center;gap:12px;background:rgba(255,61,107,0.03);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.error-flow{display:flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;font-size:8px;flex-wrap:wrap;}
+.ef-box{padding:3px 8px;border-radius:3px;border:1px solid;font-size:7px;white-space:nowrap;}
+.ef-arrow{color:var(--muted);font-size:10px;}
+.ef-label{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--muted);letter-spacing:2px;margin-right:4px;}
+.memory-strip{padding:12px 20px;display:flex;align-items:center;gap:8px;background:rgba(255,209,102,0.03);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.ms-label{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--mem);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;}
+.ms-docs{display:flex;gap:5px;flex-wrap:wrap;}
+.ms-doc{font-family:'Share Tech Mono',monospace;font-size:7px;padding:2px 7px;border-radius:3px;background:rgba(255,209,102,0.06);border:1px solid rgba(255,209,102,0.18);color:var(--mem);}
+.ms-doc.stale{background:rgba(255,61,107,0.06);border:1px solid rgba(255,61,107,0.2);color:var(--qa);}
+.task-states-row{padding:10px 20px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border);}
+.ts-label{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--muted);letter-spacing:2px;margin-right:3px;white-space:nowrap;}
+.ts-badge{font-family:'Share Tech Mono',monospace;font-size:7px;padding:2px 8px;border-radius:3px;white-space:nowrap;}
+.foundation-row{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border);}
+.found-cell{padding:14px 16px;border-right:1px solid var(--border);}
+.found-cell:last-child{border-right:none;}
+.found-title{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;}
+.found-items{display:flex;flex-direction:column;gap:3px;}
+.found-item{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);padding:3px 7px;border-radius:3px;background:var(--s1);border:1px solid var(--border);display:flex;align-items:center;gap:5px;}
+.found-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
 
-/* ── PAGE HEADER ── */
-.page-header {
-  padding: 48px 40px 36px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: flex-end; justify-content: space-between;
-  flex-wrap: wrap; gap: 20px;
-}
-.ph-left {}
-.ph-eyebrow {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px; letter-spacing: 4px; color: var(--orch);
-  text-transform: uppercase; margin-bottom: 8px;
-}
-.ph-title {
-  font-size: clamp(22px, 3.5vw, 38px);
-  font-weight: 800; line-height: 1.1; color: var(--text);
-}
-.ph-title span { color: var(--orch); }
-.ph-right {
-  display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
-}
-.legend {
-  display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end;
-}
-.leg-item {
-  display: flex; align-items: center; gap: 6px;
-  font-family: 'Share Tech Mono', monospace; font-size: 9px;
-  color: var(--muted); letter-spacing: 1px;
-}
-.leg-dot { width:8px;height:8px;border-radius:2px;flex-shrink:0; }
-.leg-line { width:20px;height:2px;flex-shrink:0; }
+/* ══════════════════════════════════════
+   TAB 2: AGENT REGISTRY
+══════════════════════════════════════ */
+.reg-wrap{padding:32px 36px;}
+.reg-header{margin-bottom:28px;}
+.reg-title{font-size:clamp(18px,2.5vw,30px);font-weight:800;margin-bottom:6px;}
+.reg-title span{color:var(--reg);}
+.reg-sub{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;}
+.reg-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;align-items:center;}
+.reg-filter{font-family:'Share Tech Mono',monospace;font-size:9px;padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:var(--s1);color:var(--muted);cursor:pointer;transition:all 0.15s;letter-spacing:1px;}
+.reg-filter:hover,.reg-filter.active{border-color:var(--reg);color:var(--text);background:rgba(251,146,60,0.08);}
+.reg-search{font-family:'Share Tech Mono',monospace;font-size:9px;padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:var(--s1);color:var(--text);outline:none;margin-left:auto;width:200px;}
+.reg-search::placeholder{color:var(--muted);}
+.reg-search:focus{border-color:var(--reg);}
+.reg-table{width:100%;border-collapse:collapse;}
+.reg-table th{text-align:left;padding:8px 12px;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);background:var(--s1);cursor:pointer;user-select:none;}
+.reg-table th:hover{color:var(--text);}
+.reg-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:11px;vertical-align:middle;}
+.reg-table tr{transition:background 0.1s;cursor:pointer;}
+.reg-table tr:hover td{background:var(--s2);}
+.reg-table tr.hidden{display:none;}
+.r-name{font-weight:700;color:var(--text);}
+.r-id{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);}
+.status-badge{font-family:'Share Tech Mono',monospace;font-size:8px;padding:2px 8px;border-radius:3px;white-space:nowrap;}
+.status-active{background:rgba(0,255,178,0.1);border:1px solid rgba(0,255,178,0.25);color:var(--orch);}
+.status-building{background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);color:var(--async);}
+.status-planned{background:rgba(61,65,78,0.4);border:1px solid var(--border2);color:var(--muted);}
+.status-deprecated{background:rgba(255,61,107,0.1);border:1px solid rgba(255,61,107,0.25);color:var(--qa);}
+.pipeline-tag{font-family:'Share Tech Mono',monospace;font-size:8px;padding:2px 7px;border-radius:3px;border:1px solid;white-space:nowrap;}
+.dep-list{display:flex;gap:4px;flex-wrap:wrap;}
+.dep-tag{font-family:'Share Tech Mono',monospace;font-size:7px;padding:1px 6px;border-radius:2px;background:var(--s3);border:1px solid var(--border2);color:var(--muted);}
+.gate-tag{font-family:'Share Tech Mono',monospace;font-size:8px;padding:2px 6px;border-radius:3px;}
+.reg-row-detail{background:var(--s2);display:none;}
+.reg-row-detail.show{display:table-row;}
+.reg-row-detail td{padding:16px 20px;border-bottom:1px solid var(--border2);}
+.rrd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.rrd-col h6{font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--reg);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+.rrd-col ul{list-style:none;display:flex;flex-direction:column;gap:3px;}
+.rrd-col ul li{font-size:10px;color:var(--muted);padding-left:10px;position:relative;line-height:1.5;}
+.rrd-col ul li::before{content:'›';position:absolute;left:0;color:var(--reg);}
+.reg-add-btn{font-family:'Share Tech Mono',monospace;font-size:9px;padding:6px 14px;border-radius:5px;border:1px solid rgba(251,146,60,0.3);background:rgba(251,146,60,0.08);color:var(--reg);cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
+.reg-add-btn:hover{border-color:var(--reg);background:rgba(251,146,60,0.14);}
 
-/* ── MAIN LAYOUT ── */
-.main {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  grid-template-rows: auto auto auto;
-  gap: 0;
-}
+/* ══════════════════════════════════════
+   TAB 3: GOVERNANCE PROTOCOL
+══════════════════════════════════════ */
+.gov-wrap{padding:32px 36px;}
+.gov-hero{margin-bottom:40px;}
+.gov-title{font-size:clamp(18px,2.5vw,30px);font-weight:800;margin-bottom:6px;}
+.gov-title span{color:var(--gov);}
+.gov-sub{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;}
+.gov-principles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:40px;}
+.gov-principle{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:18px;position:relative;overflow:hidden;}
+.gov-principle::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gov);}
+.gp-num{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--gov);letter-spacing:2px;margin-bottom:5px;}
+.gp-title{font-size:13px;font-weight:700;margin-bottom:6px;}
+.gp-desc{font-size:11px;color:var(--muted);line-height:1.6;}
+.gov-section{margin-bottom:40px;}
+.gov-section-title{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gov);margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+.gov-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.protocol-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.protocol-card{background:var(--s1);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.pc-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;}
+.pc-header:hover{background:var(--s2);}
+.pc-icon{font-size:18px;}
+.pc-name{font-size:14px;font-weight:700;}
+.pc-type{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:2px;margin-top:2px;text-transform:uppercase;}
+.pc-toggle{margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);}
+.pc-body{padding:18px;display:none;}
+.pc-body.open{display:block;}
+.pc-steps{display:flex;flex-direction:column;gap:0;}
+.pc-step{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border);position:relative;}
+.pc-step:last-child{border-bottom:none;}
+.pc-step-num{width:24px;height:24px;border-radius:50%;background:var(--s3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--gov);flex-shrink:0;margin-top:1px;}
+.pc-step-content{}
+.pc-step-title{font-size:12px;font-weight:700;margin-bottom:3px;}
+.pc-step-desc{font-size:10px;color:var(--muted);line-height:1.6;}
+.pc-step-req{margin-top:5px;display:flex;flex-direction:column;gap:2px;}
+.pc-req-item{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--async);padding-left:10px;position:relative;}
+.pc-req-item::before{content:'[  ]';position:absolute;left:0;color:var(--muted);}
+.pc-gate{background:rgba(255,61,107,0.05);border:1px solid rgba(255,61,107,0.2);border-radius:6px;padding:8px 12px;margin-top:6px;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--qa);letter-spacing:1px;}
+.checklist-section{margin-bottom:40px;}
+.checklist-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.checklist-card{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:18px;}
+.cc-title{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.cc-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.cc-item:last-child{border-bottom:none;}
+.cc-box{width:14px;height:14px;border-radius:3px;border:1px solid var(--border2);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.cc-box.checked{background:rgba(0,255,178,0.15);border-color:var(--orch);}
+.cc-check{color:var(--orch);font-size:10px;display:none;}
+.cc-box.checked .cc-check{display:block;}
+.cc-text{font-size:10px;color:var(--muted);line-height:1.5;}
+.cc-item.checked .cc-text{color:var(--text);}
 
-/* ── LAYER LABELS (left column) ── */
-.layer-labels { grid-column: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
-.layer-label {
-  display: flex; align-items: center; justify-content: flex-end;
-  padding: 0 20px; border-bottom: 1px solid var(--border);
-  position: relative;
-}
-.layer-label::after {
-  content: '';
-  position: absolute; right: -5px; top: 50%; transform: translateY(-50%);
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--ll-color, var(--border2));
-  border: 1px solid var(--bg);
-  z-index: 2;
-}
-.ll-text {
-  text-align: right;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
-  color: var(--ll-color, var(--muted));
-  line-height: 1.5;
-}
+/* ══════════════════════════════════════
+   TAB 4: CHANGELOG
+══════════════════════════════════════ */
+.cl-wrap{padding:32px 36px;}
+.cl-title{font-size:clamp(18px,2.5vw,30px);font-weight:800;margin-bottom:6px;}
+.cl-title span{color:var(--mem);}
+.cl-sub{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:32px;}
+.cl-timeline{display:flex;flex-direction:column;gap:0;position:relative;padding-left:32px;}
+.cl-timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:1px;background:var(--border2);}
+.cl-entry{position:relative;padding-bottom:28px;}
+.cl-dot{position:absolute;left:-28px;top:4px;width:14px;height:14px;border-radius:50%;border:2px solid var(--bg);z-index:1;}
+.cl-version{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--mem);margin-bottom:3px;}
+.cl-date{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);margin-bottom:8px;}
+.cl-entry-title{font-size:14px;font-weight:700;margin-bottom:8px;}
+.cl-changes{display:flex;flex-direction:column;gap:4px;}
+.cl-change{display:flex;align-items:flex-start;gap:8px;font-size:11px;color:var(--muted);line-height:1.5;}
+.cl-change-badge{font-family:'Share Tech Mono',monospace;font-size:7px;padding:1px 6px;border-radius:3px;white-space:nowrap;flex-shrink:0;margin-top:2px;}
+.cl-add{background:rgba(0,255,178,0.1);border:1px solid rgba(0,255,178,0.25);color:var(--orch);}
+.cl-fix{background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.25);color:var(--async);}
+.cl-remove{background:rgba(255,61,107,0.1);border:1px solid rgba(255,61,107,0.25);color:var(--qa);}
+.cl-modify{background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.25);color:var(--reg);}
+.cl-gov{background:rgba(244,114,182,0.1);border:1px solid rgba(244,114,182,0.25);color:var(--gov);}
+.cl-add-entry{margin-top:16px;}
+.cl-add-form{background:var(--s1);border:1px dashed var(--border2);border-radius:10px;padding:20px;}
+.cl-form-title{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:14px;}
+.cl-form-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.cl-input{font-family:'Share Tech Mono',monospace;font-size:9px;padding:7px 10px;border-radius:5px;border:1px solid var(--border2);background:var(--s2);color:var(--text);outline:none;width:100%;}
+.cl-input:focus{border-color:var(--mem);}
+.cl-select{font-family:'Share Tech Mono',monospace;font-size:9px;padding:7px 10px;border-radius:5px;border:1px solid var(--border2);background:var(--s2);color:var(--text);outline:none;}
+.cl-submit{font-family:'Share Tech Mono',monospace;font-size:9px;padding:7px 16px;border-radius:5px;border:1px solid rgba(255,209,102,0.3);background:rgba(255,209,102,0.08);color:var(--mem);cursor:pointer;transition:all 0.2s;letter-spacing:1px;}
+.cl-submit:hover{border-color:var(--mem);background:rgba(255,209,102,0.14);}
 
-/* ── PIPELINE CONTENT (right column) ── */
-.pipeline-col { grid-column: 2; display: flex; flex-direction: column; }
-
-/* ── ROW ── */
-.bp-row {
-  border-bottom: 1px solid var(--border);
-  padding: 16px 24px;
-  display: flex; align-items: center; gap: 12px;
-  min-height: 80px;
-  position: relative;
-}
-
-/* ── ORCHESTRATOR ROW ── */
-.orch-row { background: rgba(0,255,178,0.03); }
-
-.orch-node {
-  background: var(--s2);
-  border: 1px solid var(--orch);
-  border-radius: 10px;
-  padding: 14px 20px;
-  flex: 1; max-width: 500px; margin: 0 auto;
-  display: flex; align-items: center; gap: 14px;
-  position: relative; overflow: hidden;
-  cursor: pointer; transition: all 0.2s;
-  box-shadow: 0 0 20px rgba(0,255,178,0.08);
-}
-.orch-node:hover { box-shadow: 0 0 32px rgba(0,255,178,0.18); }
-.orch-node::before {
-  content:''; position:absolute; inset:0;
-  background: linear-gradient(135deg, rgba(0,255,178,0.06) 0%, transparent 60%);
-}
-.on-icon { font-size: 26px; }
-.on-name { font-size: 15px; font-weight: 700; color: var(--orch); }
-.on-desc { font-size: 10px; color: var(--muted); margin-top: 2px; font-family:'Share Tech Mono',monospace; letter-spacing:1px; }
-
-.routing-badges { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
-.rbadge {
-  font-family:'Share Tech Mono',monospace; font-size:8px;
-  padding:2px 7px; border-radius:3px; letter-spacing:1px;
-  background:rgba(0,255,178,0.08); border:1px solid rgba(0,255,178,0.2); color:var(--orch);
-}
-
-/* ── DOMAIN ROW ── */
-.domain-row { gap: 10px; flex-wrap: wrap; }
-
-.domain-node {
-  flex: 1; min-width: 140px;
-  background: var(--s1); border: 1px solid var(--border);
-  border-radius: 10px; padding: 14px 16px;
-  position: relative; cursor: pointer; transition: all 0.2s;
-  overflow: hidden;
-}
-.domain-node::before {
-  content:''; position:absolute; top:0;left:0;right:0; height:2px;
-  background: var(--dn-color, var(--border2));
-}
-.domain-node:hover { border-color: var(--dn-color, var(--border2)); transform: translateY(-2px); }
-.dn-label {
-  font-family:'Share Tech Mono',monospace; font-size:8px;
-  letter-spacing:2px; text-transform:uppercase; color:var(--dn-color);
-  margin-bottom:5px;
-}
-.dn-name { font-size:13px; font-weight:700; margin-bottom:3px; }
-.dn-sub { font-size:10px; color:var(--muted); line-height:1.5; }
-
-/* ── PIPELINE ROWS ── */
-.pipelines-area {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  border-bottom: 1px solid var(--border);
-}
-.pipe-col {
-  border-right: 1px solid var(--border);
-  display: flex; flex-direction: column;
-}
-.pipe-col:last-child { border-right: none; }
-.pipe-header {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 8px;
-  background: var(--s1);
-}
-.pipe-header-dot {
-  width:8px;height:8px;border-radius:50%;flex-shrink:0;
-  animation: blink 2s ease-in-out infinite;
-}
-@keyframes blink {
-  0%,100%{ opacity:1; } 50%{ opacity:0.4; }
-}
-.pipe-header-name {
-  font-family:'Share Tech Mono',monospace; font-size:9px;
-  letter-spacing:3px; text-transform:uppercase;
-}
-
-/* ── AGENT STEP ── */
-.agent-step {
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border);
-  cursor: pointer; transition: background 0.15s;
-  position: relative;
-}
-.agent-step:last-child { border-bottom: none; }
-.agent-step:hover { background: var(--s2); }
-.agent-step.active { background: var(--s3); }
-
-.as-connector {
-  position: absolute; left: 22px; top: -8px;
-  width: 1px; height: 8px;
-  background: var(--border2);
-}
-.as-connector::after {
-  content:''; position:absolute; bottom:-4px; left:-3px;
-  border-left: 3px solid transparent;
-  border-right: 3px solid transparent;
-  border-top: 5px solid var(--border2);
-}
-
-.as-top { display:flex; align-items:center; gap:8px; }
-.as-icon { font-size:14px; flex-shrink:0; }
-.as-name { font-size:11px; font-weight:700; }
-.as-role {
-  font-family:'Share Tech Mono',monospace; font-size:8px;
-  color:var(--muted); letter-spacing:1px; margin-top:1px;
-}
-.as-gate-badge {
-  margin-left:auto; flex-shrink:0;
-  font-family:'Share Tech Mono',monospace; font-size:8px;
-  padding:2px 6px; border-radius:3px; letter-spacing:1px;
-}
-.gate-auto { background:rgba(0,255,178,0.1); border:1px solid rgba(0,255,178,0.25); color:var(--auto); }
-.gate-human { background:rgba(192,132,252,0.1); border:1px solid rgba(192,132,252,0.25); color:var(--human); }
-.gate-async { background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.25); color:var(--async); }
-.gate-none { display:none; }
-
-/* ── QA GATE STEP ── */
-.qa-step {
-  padding: 8px 14px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: flex-start; gap: 8px;
-  background: rgba(255,61,107,0.03);
-}
-.qa-step-icon { font-size:12px; flex-shrink:0; margin-top:1px; }
-.qa-step-text {
-  font-family:'Share Tech Mono',monospace; font-size:8px;
-  color:var(--qa); letter-spacing:1px; line-height:1.6;
-}
-.qa-retry {
-  font-family:'Share Tech Mono',monospace; font-size:7px;
-  color:var(--muted); margin-top:2px; letter-spacing:1px;
-}
-
-/* ── LOOP INDICATOR ── */
-.loop-step {
-  padding: 6px 14px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 6px;
-  background: rgba(77,158,255,0.03);
-}
-.loop-step-text {
-  font-family:'Share Tech Mono',monospace; font-size:8px;
-  color:rgba(77,158,255,0.6); letter-spacing:1px;
-}
-
-/* ── HUMAN INPUT ── */
-.human-step {
-  padding: 8px 14px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 8px;
-  background: rgba(192,132,252,0.03);
-}
-.human-step-text {
-  font-family:'Share Tech Mono',monospace; font-size:8px;
-  color:var(--human); letter-spacing:1px; line-height:1.5;
-}
-
-/* ── DETAIL PANEL ── */
-.detail-panel {
-  grid-column: 1 / -1;
-  background: var(--s2);
-  border-top: 1px solid var(--border2);
-  border-bottom: 1px solid var(--border2);
-  padding: 28px 32px;
-  display: none; animation: slidedown 0.2s ease;
-}
-.detail-panel.show { display: block; }
-@keyframes slidedown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
-
-.dp-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px; }
-.dp-title { font-size:16px; font-weight:700; }
-.dp-sub { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:2px; margin-top:3px; text-transform:uppercase; }
-.dp-close { background:none; border:1px solid var(--border2); color:var(--muted); cursor:pointer; padding:4px 10px; border-radius:4px; font-family:'Share Tech Mono',monospace; font-size:10px; }
-.dp-close:hover { border-color:var(--qa); color:var(--qa); }
-
-.dp-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
-@media(max-width:800px){ .dp-grid{grid-template-columns:1fr 1fr;} }
-@media(max-width:500px){ .dp-grid{grid-template-columns:1fr;} }
-
-.dp-col h5 {
-  font-family:'Share Tech Mono',monospace; font-size:8px;
-  letter-spacing:3px; text-transform:uppercase;
-  color: var(--dp-color, var(--orch));
-  margin-bottom:10px; padding-bottom:6px;
-  border-bottom: 1px solid var(--border);
-}
-.dp-col ul { list-style:none; display:flex; flex-direction:column; gap:5px; }
-.dp-col ul li {
-  font-size:11px; color:var(--muted); padding-left:14px;
-  position:relative; line-height:1.6;
-}
-.dp-col ul li::before { content:'›'; position:absolute; left:0; color:var(--dp-color,var(--orch)); }
-.dp-col ul li strong { color:var(--text); }
-
-.dp-rubric {
-  margin-top:16px; background:var(--bg); border:1px solid var(--border);
-  border-radius:6px; padding:12px 14px;
-  font-family:'Share Tech Mono',monospace; font-size:9px;
-  color:var(--async); line-height:1.9;
-}
-.dp-rubric-title { color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; font-size:8px; }
-
-/* ── FOUNDATION ROW ── */
-.foundation-row {
-  display:grid; grid-template-columns:1fr 1fr 1fr;
-  border-bottom: 1px solid var(--border);
-}
-.found-cell {
-  padding: 16px 18px;
-  border-right: 1px solid var(--border);
-}
-.found-cell:last-child { border-right:none; }
-.found-title {
-  font-family:'Share Tech Mono',monospace; font-size:9px;
-  letter-spacing:2px; text-transform:uppercase;
-  margin-bottom:8px;
-}
-.found-items { display:flex; flex-direction:column; gap:4px; }
-.found-item {
-  font-family:'Share Tech Mono',monospace; font-size:9px;
-  color:var(--muted); padding:4px 8px; border-radius:3px;
-  background:var(--s1); border:1px solid var(--border);
-  display:flex; align-items:center; gap:6px;
-}
-.found-dot { width:5px;height:5px;border-radius:50%;flex-shrink:0; }
-
-/* ── ERROR STATE ROW ── */
-.error-row {
-  padding: 12px 24px;
-  display:flex; align-items:center; gap:16px;
-  background: rgba(255,61,107,0.03);
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
-}
-.error-flow {
-  display:flex; align-items:center; gap:6px;
-  font-family:'Share Tech Mono',monospace; font-size:9px;
-  flex-wrap: wrap;
-}
-.ef-box {
-  padding: 4px 10px; border-radius:4px;
-  border:1px solid; font-size:8px; white-space:nowrap;
-}
-.ef-arrow { color:var(--muted); font-size:12px; }
-.ef-label {
-  font-family:'Share Tech Mono',monospace; font-size:8px;
-  color:var(--muted); letter-spacing:2px; margin-right:6px;
-}
-
-/* ── MEMORY STRIP ── */
-.memory-strip {
-  padding: 14px 24px;
-  display:flex; align-items:center; gap:10px;
-  background: rgba(255,209,102,0.03);
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
-}
-.ms-label {
-  font-family:'Share Tech Mono',monospace; font-size:8px;
-  color:var(--mem); letter-spacing:2px; text-transform:uppercase;
-  white-space:nowrap;
-}
-.ms-docs { display:flex; gap:6px; flex-wrap:wrap; }
-.ms-doc {
-  font-family:'Share Tech Mono',monospace; font-size:8px;
-  padding:2px 8px; border-radius:3px;
-  background:rgba(255,209,102,0.06); border:1px solid rgba(255,209,102,0.18);
-  color:var(--mem);
-}
-.ms-doc.stale {
-  background:rgba(255,61,107,0.06); border:1px solid rgba(255,61,107,0.2); color:var(--qa);
-}
-
-/* ── TASK STATES ── */
-.task-states-row {
-  padding: 12px 24px;
-  display:flex; gap:8px; flex-wrap:wrap;
-  align-items:center;
-  border-bottom: 1px solid var(--border);
-}
-.ts-label {
-  font-family:'Share Tech Mono',monospace; font-size:8px;
-  color:var(--muted); letter-spacing:2px; margin-right:4px;
-  white-space:nowrap;
-}
-.ts-badge {
-  font-family:'Share Tech Mono',monospace; font-size:8px;
-  padding:3px 9px; border-radius:3px; white-space:nowrap;
-}
-
-/* responsive */
 @media(max-width:900px){
-  .main{ grid-template-columns:1fr; }
-  .layer-labels{ display:none; }
-  .pipelines-area{ grid-template-columns:1fr; }
-  .pipe-col{ border-right:none; border-bottom:1px solid var(--border); }
-  .foundation-row{ grid-template-columns:1fr; }
-  .found-cell{ border-right:none; border-bottom:1px solid var(--border); }
-}
-@media(max-width:600px){
-  .page-header{ padding:28px 16px 20px; }
-  .bp-row{ padding:12px 14px; }
-  .domain-row{ flex-direction:column; }
+  .main{grid-template-columns:1fr;}
+  .layer-labels{display:none;}
+  .pipelines-area{grid-template-columns:1fr;}
+  .pipe-col{border-right:none;border-bottom:1px solid var(--border);}
+  .foundation-row{grid-template-columns:1fr;}
+  .found-cell{border-right:none;border-bottom:1px solid var(--border);}
+  .dp-grid{grid-template-columns:1fr 1fr;}
+  .gov-principles{grid-template-columns:1fr;}
+  .protocol-cards{grid-template-columns:1fr;}
+  .checklist-grid{grid-template-columns:1fr;}
+  .rrd-grid{grid-template-columns:1fr 1fr;}
+  .cl-form-row{grid-template-columns:1fr;}
 }
 </style>
 </head>
 <body>
-<div class="canvas">
 
-<!-- ══════════ PAGE HEADER ══════════ -->
-<div class="page-header">
-  <div class="ph-left">
-    <div class="ph-eyebrow">// EPIK Holding · AI Agent System · v3.0 — Hardened</div>
-    <div class="ph-title">Full System <span>Blueprint</span></div>
+<!-- ══ TOP NAV ══ -->
+<nav class="top-nav">
+  <div class="nav-brand">
+    <div class="nav-brand-dot"></div>
+    <span class="nav-brand-text">EPIK AI SYSTEM</span>
   </div>
-  <div class="ph-right">
-    <div class="legend">
-      <div class="leg-item"><div class="leg-dot" style="background:var(--orch)"></div>Orchestrator</div>
-      <div class="leg-item"><div class="leg-dot" style="background:var(--dev)"></div>Dev Studio</div>
-      <div class="leg-item"><div class="leg-dot" style="background:var(--media)"></div>Media</div>
-      <div class="leg-item"><div class="leg-dot" style="background:var(--rnd)"></div>R&D</div>
-      <div class="leg-item"><div class="leg-dot" style="background:var(--qa)"></div>QA Gate</div>
-      <div class="leg-item"><div class="leg-dot" style="background:var(--mem)"></div>Memory</div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" style="--tab-color:var(--orch)" onclick="switchView('blueprint',this)">
+      <span class="nav-tab-num">01</span> Blueprint
     </div>
-    <div class="legend" style="margin-top:4px;">
-      <div class="leg-item"><div class="leg-line" style="background:var(--auto)"></div>AUTO gate</div>
-      <div class="leg-item"><div class="leg-line" style="background:var(--human)"></div>HUMAN gate</div>
-      <div class="leg-item"><div class="leg-line" style="background:var(--async)"></div>ASYNC gate</div>
+    <div class="nav-tab" style="--tab-color:var(--reg)" onclick="switchView('registry',this)">
+      <span class="nav-tab-num">02</span> Agent Registry
+    </div>
+    <div class="nav-tab" style="--tab-color:var(--gov)" onclick="switchView('governance',this)">
+      <span class="nav-tab-num">03</span> Governance Protocol
+    </div>
+    <div class="nav-tab" style="--tab-color:var(--mem)" onclick="switchView('changelog',this)">
+      <span class="nav-tab-num">04</span> Changelog
+    </div>
+  </div>
+  <div class="nav-version">v3.1 — HARDENED + GOVERNED</div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     VIEW 1: BLUEPRINT
+══════════════════════════════════════ -->
+<div class="view active" id="view-blueprint">
+  <div class="page-header">
+    <div>
+      <div class="ph-eyebrow">// Full System Blueprint · All fixes integrated · Modular by protocol</div>
+      <div class="ph-title">EPIK AI <span>Agent System</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--orch)"></div>Orchestrator</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--dev)"></div>Dev Studio</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--media)"></div>Media</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--rnd)"></div>R&D</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--qa)"></div>QA Gate</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--mem)"></div>Memory</div>
+      </div>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-line" style="background:var(--auto)"></div>AUTO gate</div>
+        <div class="leg-item"><div class="leg-line" style="background:var(--human)"></div>HUMAN gate</div>
+        <div class="leg-item"><div class="leg-line" style="background:var(--async)"></div>ASYNC gate</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="layer-labels">
+      <div class="layer-label" style="--ll-color:var(--orch);height:82px;"><div class="ll-text">TIER 0<br>Orchestrator</div></div>
+      <div class="layer-label" style="--ll-color:var(--border2);height:66px;"><div class="ll-text">TIER 1<br>Domain Leads</div></div>
+      <div class="layer-label" style="--ll-color:var(--dev);flex:1;min-height:360px;"><div class="ll-text">TIER 2<br>Pipelines</div></div>
+      <div class="layer-label" style="--ll-color:var(--qa);height:42px;"><div class="ll-text">Error<br>Protocol</div></div>
+      <div class="layer-label" style="--ll-color:var(--mem);height:40px;"><div class="ll-text">Memory<br>Context</div></div>
+      <div class="layer-label" style="--ll-color:var(--border2);height:46px;"><div class="ll-text">Task<br>States</div></div>
+      <div class="layer-label" style="--ll-color:var(--mem);height:148px;"><div class="ll-text">Foundation<br>Layer</div></div>
+    </div>
+    <div class="pipeline-col">
+      <!-- ORCHESTRATOR -->
+      <div class="bp-row orch-row" style="justify-content:center;">
+        <div class="orch-node" onclick="showBlueprintDetail('orchestrator')">
+          <div class="on-icon">🧠</div>
+          <div style="flex:1;">
+            <div class="on-name">EPIK Brain — Orchestrator</div>
+            <div class="on-desc">Tier 0 · Routes all tasks · Routing confirmation loop · Dead-letter queue on failure</div>
+            <div class="routing-badges">
+              <span class="rbadge">→ Dev Studio Lead</span><span class="rbadge">→ Media Lead</span><span class="rbadge">→ R&D Lead</span><span class="rbadge">30min timeout → escalate</span><span class="rbadge">2x miss → DLQ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- DOMAIN LEADS -->
+      <div class="bp-row domain-row">
+        <div class="domain-node" style="--dn-color:var(--dev);" onclick="showBlueprintDetail('dev-lead')"><div class="dn-label">Dev Studio Lead</div><div class="dn-name">🏗️ Client Delivery</div><div class="dn-sub">Brief → Ship. Confirms routing within 5min.</div></div>
+        <div class="domain-node" style="--dn-color:var(--media);" onclick="showBlueprintDetail('media-lead')"><div class="dn-label">Media Lead</div><div class="dn-name">📡 Infia Techno</div><div class="dn-sub">Human sets direction. Daily pipeline.</div></div>
+        <div class="domain-node" style="--dn-color:var(--rnd);" onclick="showBlueprintDetail('rnd-lead')"><div class="dn-label">R&D Lead</div><div class="dn-name">🔬 Products</div><div class="dn-sub">POC→MVP→Prod. Shares agents.</div></div>
+        <div class="domain-node" style="--dn-color:var(--mem);" onclick="showBlueprintDetail('mem-sync')"><div class="dn-label">Memory Sync</div><div class="dn-name">🗄️ Weekly Audit</div><div class="dn-sub">Flags stale context. Version control.</div></div>
+      </div>
+      <!-- PIPELINES -->
+      <div class="pipelines-area">
+        <!-- DEV -->
+        <div class="pipe-col">
+          <div class="pipe-header"><div class="pipe-header-dot" style="background:var(--dev)"></div><div class="pipe-header-name" style="color:var(--dev)">Dev Studio Pipeline</div></div>
+          <div class="human-step"><span>👤</span><span class="human-step-text">Client brief via Slack / email / Notion</span></div>
+          <div class="agent-step" onclick="showBlueprintDetail('intake')"><div class="as-connector"></div><div class="as-top"><span class="as-icon">📥</span><div style="flex:1;"><div class="as-name">Intake & Scoping Agent</div><div class="as-role">Brief → Scope Doc</div></div><span class="as-gate-badge gate-auto">AUTO</span></div></div>
+          <div class="qa-step"><span class="qa-step-icon">🛡️</span><div><div class="qa-step-text">QA 1 — Scope completeness</div><div class="qa-retry">↺ max 2 → escalate</div></div></div>
+          <div class="agent-step" onclick="showBlueprintDetail('prd')"><div class="as-connector"></div><div class="as-top"><span class="as-icon">📋</span><div style="flex:1;"><div class="as-name">PRD Agent</div><div class="as-role">Scope → Requirements Doc</div></div><span class="as-gate-badge gate-human">HUMAN</span></div></div>
+          <div class="qa-step"><span class="qa-step-icon">🛡️</span><div><div class="qa-step-text">QA 2 — PRD rubric · human gate</div><div class="qa-retry">↺ max 2 → escalate</div></div></div>
+          <div class="loop-step"><span style="color:var(--dev);font-size:10px;">⇄</span><span class="loop-step-text" style="color:var(--dev);">PRD ↔ UI/UX iterative loop</span></div>
+          <div class="agent-step" onclick="showBlueprintDetail('uiux')"><div class="as-connector"></div><div class="as-top"><span class="as-icon">🎨</span><div style="flex:1;"><div class="as-name">UI/UX Agent</div><div class="as-role">Design Spec · Figma Prompts</div></div><span class="as-gate-badge gate-human">HUMAN</span></div></div>
+          <div class="qa-step"><span class="qa-step-icon">🛡️</span><div><div class="qa-step-text">QA 3 — Design rubric · human gate</div><div class="qa-retry">↺ max 2 → escalate</div></div></div>
+          <div class="agent-step" onclick="showBlueprintDetail('coder')"><div class="as-connector"></div><div class="as-top"><span class="as-icon">💻</span><div style="flex:1;"><div class="as-name">Coder Agent</div><div class="as-role">Claude Code · GitHub</div></div><span class="as-gate-badge gate-auto">AUTO</span></div></div>
+          <div class="qa-step"><span class="qa-step-icon">🛡️</span><div><div class="qa-step-text">QA 4 — Lint · tests · acceptance</div><div class="qa-retry">↺ max 2 → escalate</div></div></div>
+          <div class="agent-step" onclick="showBlueprintDetail('delivery')"><div class="as-connector"></div><div class="as-top"><span class="as-icon">🚀</span><div style="flex:1;"><div class="as-name">Delivery Agent</div><div class="as-role">Docs · Client Handoff</div></div><span class="as-gate-badge gate-human">HUMAN</span></div></div>
+          <div class="qa-step" style="border-bottom:none;"><span class="qa-step-icon">🛡️</span><div><div class="qa-step-text">QA 5 — Final delivery · human approves</div><div class="qa-retry">↺ max 2 → escalate</div></div></div>
+        </div>
+        <!-- MEDIA -->
+        <div class="pipe-col">
+          <div class="pipe-header"><div class="pipe-header-dot" style="background:var(--media)"></div><div class="pipe-header-name" style="color:var(--media)">Media Pipeline</div></div>
+          <div class="human-step"><span>👤</span><span class="human-step-text">Creative direction · topic brief · paid flag</span></div>
+          <div class="agent-step" onclick="showBlueprintDetail('research')"><div class="as-connector"></div><div class="as-top"><span class="as-icon">🔍</span><div style="flex:1;"><div class="as-name">Research Agent</div><div class="as-role">Daily 07:00 WIB · Ranked Brief</div></div><span class="as-gate-badge gate-auto">AUTO</span></div></div>
+          <div class="qa-step"><span class="qa-step-icon">🛡️</span><div><div class="qa-step-text">QA 1 — Source credibility · angle</div><div class="qa-retry">↺ max 2 → escalate</div></div></div>
+          <div class="loop-step"><span style="color:var(--media);font-size:10px;">⇉</span><span class="loop-step-text" style="color:var(--media);">3 writer sub-agents run in parallel</span></div>
+          <div class="agent-step" onclick="showBlueprintDetail('news-writer')"><div class="as-top"><span class="as-icon">📰</span><div style="flex:1;"><div class="as-name">News Article Agent</div><div class="as-role">500–900w · Journalistic · SEO</div></div><span class="as-gate-badge gate-async">ASYNC</span></div></div>
+          <div class="agent-step" onclick="showBlueprintDetail('social-writer')"><div class="as-top"><span class="as-icon">📱</span><div style="flex:1;"><div class="as-name">Social Caption Agent</div><div class="as-role">IG + Twitter · Platform-native</div></div><span class="as-gate-badge gate-async">ASYNC</span></div></div>
+          <div class="agent-step" onclick="showBlueprintDetail('paid-pr')"><div class="as-top"><span class="as-icon">💼</span><div style="flex:1;"><div class="as-name">Paid PR Agent</div><div class="as-role">Conditional · paid_post:true only</div></div><span class="as-gate-badge gate-human">HUMAN</span></div></div>
+          <div class="qa-step"><span class="qa-step-icon">🛡️</span><div><div class="qa-step-text">QA 2 — Brand voice · facts · disclosure · 2hr rollback</div><div class="qa-retry">↺ max 2 → escalate</div></div></div>
+          <div class="agent-step" onclick="showBlueprintDetail('publisher')"><div class="as-connector"></div><div class="as-top"><span class="as-icon">📤</span><div style="flex:1;"><div class="as-name">Publishing Agent</div><div class="as-role">Instagram · Website · Scheduler</div></div><span class="as-gate-badge gate-async">ASYNC</span></div></div>
+          <div class="qa-step" style="border-bottom:none;"><span class="qa-step-icon">🛡️</span><div><div class="qa-step-text">QA 3 — Publish confirm · metrics log</div><div class="qa-retry">auto-approved · logged to Notion</div></div></div>
+        </div>
+        <!-- R&D -->
+        <div class="pipe-col">
+          <div class="pipe-header"><div class="pipe-header-dot" style="background:var(--rnd)"></div><div class="pipe-header-name" style="color:var(--rnd)">R&D Pipeline</div></div>
+          <div class="human-step"><span>👤</span><span class="human-step-text">Raw product idea from Akhri / entity lead</span></div>
+          <div class="agent-step" onclick="showBlueprintDetail('ideation')"><div class="as-connector"></div><div class="as-top"><span class="as-icon">💡</span><div style="flex:1;"><div class="as-name">Ideation Agent</div><div class="as-role">Feasibility · Go/No-Go Brief</div></div><span class="as-gate-badge gate-human">HUMAN</span></div></div>
+          <div class="qa-step"><span class="qa-step-icon">🛡️</span><div><div class="qa-step-text">QA 1 — Go/No-go · resource gate</div><div class="qa-retry">human decides · no retries</div></div></div>
+          <div class="agent-step" onclick="showBlueprintDetail('prd')"><div class="as-connector"></div><div class="as-top"><span class="as-icon">📋</span><div style="flex:1;"><div class="as-name">PRD Agent</div><div class="as-role">Shared · POC-scoped mode</div></div><span class="as-gate-badge gate-human">HUMAN</span></div></div>
+          <div class="qa-step"><span class="qa-step-icon">🛡️</span><div><div class="qa-step-text">QA 2 — PRD · stage-aware scope</div><div class="qa-retry">↺ max 2 → escalate</div></div></div>
+          <div class="loop-step"><span style="color:var(--rnd);font-size:10px;">⇄</span><span class="loop-step-text" style="color:var(--rnd);">UI/UX ↔ PRD loop (text wireframes POC)</span></div>
+          <div class="agent-step" onclick="showBlueprintDetail('uiux')"><div class="as-top"><span class="as-icon">🎨</span><div style="flex:1;"><div class="as-name">UI/UX Agent</div><div class="as-role">Shared · POC = text wireframes</div></div><span class="as-gate-badge gate-human">HUMAN</span></div></div>
+          <div class="agent-step" onclick="showBlueprintDetail('coder')"><div class="as-top"><span class="as-icon">💻</span><div style="flex:1;"><div class="as-name">Coder Agent</div><div class="as-role">Shared · POC = speed mode</div></div><span class="as-gate-badge gate-auto">AUTO</span></div></div>
+          <div class="qa-step"><span class="qa-step-icon">🛡️</span><div><div class="qa-step-text">QA 3 — Core assumption demonstrable</div><div class="qa-retry">↺ max 2 → escalate</div></div></div>
+          <div class="agent-step" onclick="showBlueprintDetail('stagegate')"><div class="as-connector"></div><div class="as-top"><span class="as-icon">📈</span><div style="flex:1;"><div class="as-name">Stage Gate Agent</div><div class="as-role">POC→MVP: 3/3 · MVP→Prod: 4/6</div></div><span class="as-gate-badge gate-human">HUMAN</span></div></div>
+          <div class="qa-step" style="border-bottom:none;"><span class="qa-step-icon">🛡️</span><div><div class="qa-step-text">QA 4 — Evidence checklist · human checks Notion boxes</div><div class="qa-retry">cannot advance without evidence</div></div></div>
+        </div>
+      </div>
+      <!-- DETAIL PANEL -->
+      <div class="detail-panel" id="bp-detail-panel">
+        <div class="dp-header"><div><div class="dp-title" id="dp-title">—</div><div class="dp-sub" id="dp-sub">—</div></div><button class="dp-close" onclick="closeBlueprintDetail()">✕ close</button></div>
+        <div class="dp-grid" id="dp-grid"></div>
+        <div class="dp-rubric" id="dp-rubric" style="display:none;"></div>
+      </div>
+      <!-- ERROR PROTOCOL -->
+      <div class="error-row">
+        <span class="ef-label">ERROR PROTOCOL →</span>
+        <div class="error-flow">
+          <div class="ef-box" style="border-color:var(--border2);color:var(--muted)">Attempt 1</div><span class="ef-arrow">→</span>
+          <div class="ef-box" style="border-color:var(--qa);color:var(--qa)">QA FAIL</div><span class="ef-arrow">→</span>
+          <div class="ef-box" style="border-color:var(--border2);color:var(--muted)">Attempt 2 + reason</div><span class="ef-arrow">→</span>
+          <div class="ef-box" style="border-color:var(--qa);color:var(--qa)">QA FAIL</div><span class="ef-arrow">→</span>
+          <div class="ef-box" style="border-color:var(--human);color:var(--human)">🚨 ESCALATE</div><span class="ef-arrow">→</span>
+          <div class="ef-box" style="border-color:var(--async);color:var(--async)">Slack DM → Akhri</div><span class="ef-arrow">→</span>
+          <div class="ef-box" style="border-color:var(--muted);color:var(--muted)">RETRY / SKIP / MANUAL</div>
+        </div>
+      </div>
+      <!-- MEMORY STRIP -->
+      <div class="memory-strip">
+        <span class="ms-label">🗄️ MEMORY →</span>
+        <div class="ms-docs">
+          <span class="ms-doc">epik_structure</span><span class="ms-doc">team_roles</span><span class="ms-doc">gudangin_spec</span><span class="ms-doc">mycelium_spec</span><span class="ms-doc">infia_voice</span><span class="ms-doc">parallax_pitch</span><span class="ms-doc">prd_rubric</span><span class="ms-doc">uiux_rubric</span><span class="ms-doc">code_rubric</span><span class="ms-doc">media_rubric</span><span class="ms-doc">stage_evidence</span><span class="ms-doc">agent_registry</span><span class="ms-doc stale">⚠ popcard_spec</span>
+        </div>
+      </div>
+      <!-- TASK STATES -->
+      <div class="task-states-row">
+        <span class="ts-label">TASK STATES →</span>
+        <span class="ts-badge" style="background:rgba(0,255,178,0.08);border:1px solid rgba(0,255,178,0.2);color:var(--auto)">PENDING</span>
+        <span class="ts-badge" style="background:rgba(77,158,255,0.08);border:1px solid rgba(77,158,255,0.2);color:var(--dev)">CONFIRMED</span>
+        <span class="ts-badge" style="background:rgba(61,255,160,0.08);border:1px solid rgba(61,255,160,0.2);color:var(--rnd)">IN_PROGRESS</span>
+        <span class="ts-badge" style="background:rgba(255,61,107,0.08);border:1px solid rgba(255,61,107,0.2);color:var(--qa)">QA_REVIEW</span>
+        <span class="ts-badge" style="background:rgba(192,132,252,0.08);border:1px solid rgba(192,132,252,0.2);color:var(--human)">BLOCKED</span>
+        <span class="ts-badge" style="background:rgba(255,61,107,0.12);border:1px solid rgba(255,61,107,0.3);color:var(--qa)">ESCALATED</span>
+        <span class="ts-badge" style="background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.2);color:var(--mem)">DEAD_LETTER</span>
+        <span class="ts-badge" style="background:rgba(0,255,178,0.04);border:1px solid rgba(0,255,178,0.1);color:var(--muted)">COMPLETED</span>
+      </div>
+      <!-- FOUNDATION -->
+      <div class="foundation-row">
+        <div class="found-cell"><div class="found-title" style="color:var(--mem)">🗄️ Memory & Context Layer</div><div class="found-items"><div class="found-item"><div class="found-dot" style="background:var(--mem)"></div>Notion DB · versioned · expiry dates</div><div class="found-item"><div class="found-dot" style="background:var(--mem)"></div>Weekly sync · human sign-off</div><div class="found-item"><div class="found-dot" style="background:var(--mem)"></div>QA rubric files · 7 documents</div><div class="found-item"><div class="found-dot" style="background:var(--mem)"></div>Agent Registry (Tab 02)</div></div></div>
+        <div class="found-cell"><div class="found-title" style="color:var(--async)">⚡ Trigger & Routing Layer</div><div class="found-items"><div class="found-item"><div class="found-dot" style="background:var(--async)"></div>n8n · Slack → EPIK Brain webhook</div><div class="found-item"><div class="found-dot" style="background:var(--async)"></div>Daily 07:00 cron → Research Agent</div><div class="found-item"><div class="found-dot" style="background:var(--async)"></div>Weekly Mon → Memory Sync</div><div class="found-item"><div class="found-dot" style="background:var(--async)"></div>Escalation → Slack DM to Akhri</div></div></div>
+        <div class="found-cell"><div class="found-title" style="color:var(--qa)">📋 Task Log + Governance</div><div class="found-items"><div class="found-item"><div class="found-dot" style="background:var(--qa)"></div>All tasks: ID · state · timestamps</div><div class="found-item"><div class="found-dot" style="background:var(--qa)"></div>Dead-letter queue · DLQ review</div><div class="found-item"><div class="found-dot" style="background:var(--qa)"></div>Agent Registry · Governance Protocol (Tab 03)</div><div class="found-item"><div class="found-dot" style="background:var(--qa)"></div>Changelog (Tab 04)</div></div></div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ══════════ MAIN GRID ══════════ -->
-<div class="main">
+<!-- ══════════════════════════════════════
+     VIEW 2: AGENT REGISTRY
+══════════════════════════════════════ -->
+<div class="view" id="view-registry">
+<div class="reg-wrap">
+  <div class="reg-header">
+    <div class="reg-title">Agent <span>Registry</span></div>
+    <div class="reg-sub">// Single source of truth · All agents · Live status · Click any row for detail</div>
+  </div>
+  <div class="reg-controls">
+    <button class="reg-filter active" onclick="filterReg('all',this)">All (15)</button>
+    <button class="reg-filter" onclick="filterReg('active',this)">Active</button>
+    <button class="reg-filter" onclick="filterReg('building',this)">Building</button>
+    <button class="reg-filter" onclick="filterReg('planned',this)">Planned</button>
+    <button class="reg-filter" onclick="filterReg('dev',this)">Dev Studio</button>
+    <button class="reg-filter" onclick="filterReg('media',this)">Media</button>
+    <button class="reg-filter" onclick="filterReg('rnd',this)">R&D</button>
+    <button class="reg-filter" onclick="filterReg('shared',this)">Shared</button>
+    <input class="reg-search" type="text" placeholder="Search agents..." oninput="searchReg(this.value)">
+    <button class="reg-add-btn" onclick="switchView('governance',document.querySelectorAll('.nav-tab')[2]);document.getElementById('add-protocol').scrollIntoView({behavior:'smooth'})">+ Register New Agent</button>
+  </div>
+  <table class="reg-table" id="reg-table">
+    <thead>
+      <tr>
+        <th>Agent</th>
+        <th>Pipeline</th>
+        <th>Status</th>
+        <th>Gate Type</th>
+        <th>Owner</th>
+        <th>Depends On</th>
+        <th>Rubric File</th>
+      </tr>
+    </thead>
+    <tbody id="reg-tbody"></tbody>
+  </table>
+</div>
+</div>
 
-  <!-- LAYER LABELS -->
-  <div class="layer-labels">
-    <div class="layer-label" style="--ll-color:var(--orch); height:90px;"><div class="ll-text">TIER 0<br>Orchestrator</div></div>
-    <div class="layer-label" style="--ll-color:var(--border2); height:72px;"><div class="ll-text">TIER 1<br>Domain Leads</div></div>
-    <div class="layer-label" style="--ll-color:var(--dev); flex:1; min-height:400px;"><div class="ll-text">TIER 2<br>Pipelines</div></div>
-    <div class="layer-label" style="--ll-color:var(--qa); height:46px;"><div class="ll-text">Error<br>Protocol</div></div>
-    <div class="layer-label" style="--ll-color:var(--mem); height:46px;"><div class="ll-text">Memory<br>Sync</div></div>
-    <div class="layer-label" style="--ll-color:var(--border2); height:52px;"><div class="ll-text">Task<br>States</div></div>
-    <div class="layer-label" style="--ll-color:var(--mem); height:160px;"><div class="ll-text">Foundation<br>Layer</div></div>
+<!-- ══════════════════════════════════════
+     VIEW 3: GOVERNANCE PROTOCOL
+══════════════════════════════════════ -->
+<div class="view" id="view-governance">
+<div class="gov-wrap">
+  <div class="gov-hero">
+    <div class="gov-title">Governance <span>Protocol</span></div>
+    <div class="gov-sub">// Rules for how the system evolves · ADD · MODIFY · REMOVE · DEPRECATE</div>
   </div>
 
-  <!-- PIPELINE CONTENT -->
-  <div class="pipeline-col">
+  <div class="gov-principles">
+    <div class="gov-principle"><div class="gp-num">PRINCIPLE 01</div><div class="gp-title">No Agent Without Registration</div><div class="gp-desc">Every agent that touches any EPIK pipeline must have a row in the Agent Registry before it processes a single task. No exceptions. Unregistered agents are invisible to QA gates, the Orchestrator, and the changelog.</div></div>
+    <div class="gov-principle"><div class="gp-num">PRINCIPLE 02</div><div class="gp-title">No Rubric, No Gate</div><div class="gp-desc">Every QA gate must reference a named rubric file in the Memory Layer. A gate without a rubric file is not a gate — it's a placeholder that will pass or fail randomly. Write the rubric before you build the agent.</div></div>
+    <div class="gov-principle"><div class="gp-num">PRINCIPLE 03</div><div class="gp-title">Dependency Check Before Any Change</div><div class="gp-desc">Before modifying, removing, or replacing any agent, run a dependency check in the Registry. Shared agents (PRD, UI/UX, Coder) affect multiple pipelines. A change to one without checking dependents will break downstream silently.</div></div>
+  </div>
 
-    <!-- ── ORCHESTRATOR ── -->
-    <div class="bp-row orch-row" style="justify-content:center;">
-      <div class="orch-node" onclick="showDetail('orchestrator')">
-        <div class="on-icon">🧠</div>
-        <div style="flex:1;">
-          <div class="on-name">EPIK Brain — Orchestrator</div>
-          <div class="on-desc">Tier 0 · Routes all tasks · Maintains routing confirmation loop · Dead-letter queue on failure</div>
-          <div class="routing-badges">
-            <span class="rbadge">→ Dev Studio Lead</span>
-            <span class="rbadge">→ Media Lead</span>
-            <span class="rbadge">→ R&D Lead</span>
-            <span class="rbadge">30min timeout → escalate</span>
-            <span class="rbadge">2x miss → DLQ</span>
+  <div class="gov-section">
+    <div class="gov-section-title">Protocol Definitions</div>
+    <div class="protocol-cards" id="add-protocol">
+
+      <div class="protocol-card">
+        <div class="pc-header" onclick="toggleProtocol('add')">
+          <div class="pc-icon">➕</div>
+          <div><div class="pc-name">ADD Protocol</div><div class="pc-type">Registering a new agent or pipeline</div></div>
+          <div class="pc-toggle" id="toggle-add">▼</div>
+        </div>
+        <div class="pc-body" id="body-add">
+          <div class="pc-steps">
+            <div class="pc-step"><div class="pc-step-num">1</div><div class="pc-step-content"><div class="pc-step-title">Define the agent</div><div class="pc-step-desc">Write a 1-paragraph description of what the agent does, what it does NOT do, and which pipeline it belongs to.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">2</div><div class="pc-step-content"><div class="pc-step-title">Write the rubric file first</div><div class="pc-step-desc">If this agent produces an output that passes through a QA gate, write the rubric file before writing the system prompt. Store it in Memory Layer under qa_rubrics/.</div><div class="pc-step-req"><div class="pc-req-item">rubric file named and stored in Notion</div><div class="pc-req-item">minimum 5 checklist items</div><div class="pc-req-item">gate type defined: AUTO / HUMAN / ASYNC</div></div></div></div>
+            <div class="pc-step"><div class="pc-step-num">3</div><div class="pc-step-content"><div class="pc-step-title">Register in Agent Registry</div><div class="pc-step-desc">Add a row to the Agent Registry Notion DB with all required fields before the agent processes any task.</div><div class="pc-step-req"><div class="pc-req-item">agent_id assigned (format: PIPE-NAME, e.g. DEV-PRD)</div><div class="pc-req-item">status set to BUILDING</div><div class="pc-req-item">owner named</div><div class="pc-req-item">dependencies listed</div><div class="pc-req-item">rubric_file linked</div></div></div></div>
+            <div class="pc-step"><div class="pc-step-num">4</div><div class="pc-step-content"><div class="pc-step-title">Update EPIK Brain routing</div><div class="pc-step-desc">If this is a new Domain Lead or a new pipeline entry point, update EPIK Brain's system prompt to recognize the new routing destination.</div><div class="pc-gate">🛡️ GATE — Orchestrator must be updated BEFORE the agent goes live or tasks will be lost.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">5</div><div class="pc-step-content"><div class="pc-step-title">Wire n8n trigger</div><div class="pc-step-desc">Add the routing webhook or trigger in n8n. Test with a dry-run task before marking status ACTIVE.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">6</div><div class="pc-step-content"><div class="pc-step-title">Update Registry status → ACTIVE + log to Changelog</div><div class="pc-step-desc">Once dry-run passes, update Registry row to ACTIVE. Add a changelog entry in Tab 04 with type ADD.</div></div></div>
           </div>
         </div>
+      </div>
+
+      <div class="protocol-card">
+        <div class="pc-header" onclick="toggleProtocol('modify')">
+          <div class="pc-icon">✏️</div>
+          <div><div class="pc-name">MODIFY Protocol</div><div class="pc-type">Changing an existing agent's behavior or tools</div></div>
+          <div class="pc-toggle" id="toggle-modify">▼</div>
+        </div>
+        <div class="pc-body" id="body-modify">
+          <div class="pc-steps">
+            <div class="pc-step"><div class="pc-step-num">1</div><div class="pc-step-content"><div class="pc-step-title">Check dependencies</div><div class="pc-step-desc">Look up the agent in Registry. Check the "Depends On" and "Used By" fields. If the agent is SHARED (e.g. PRD Agent), list every pipeline that will be affected.</div><div class="pc-gate">🛡️ GATE — If agent is shared across 2+ pipelines, notify all pipeline owners before making changes.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">2</div><div class="pc-step-content"><div class="pc-step-title">Assess change scope</div><div class="pc-step-desc">Minor change (system prompt wording, tool swap): proceed directly. Major change (new QA gate, new output format, pipeline restructure): requires human sign-off from Akhri.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">3</div><div class="pc-step-content"><div class="pc-step-title">Update rubric file if output changes</div><div class="pc-step-desc">If the agent's output format changes, update the rubric file to match. Increment the rubric version number. Old rubric version is archived, not deleted.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">4</div><div class="pc-step-content"><div class="pc-step-title">Test in isolation before live</div><div class="pc-step-desc">Run 3 test tasks through the modified agent in a staging context before it handles real tasks.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">5</div><div class="pc-step-content"><div class="pc-step-title">Update Registry + Changelog</div><div class="pc-step-desc">Increment version in Registry row. Add Changelog entry with type MODIFY, listing what changed and why.</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="protocol-card">
+        <div class="pc-header" onclick="toggleProtocol('remove')">
+          <div class="pc-icon">🗑️</div>
+          <div><div class="pc-name">REMOVE Protocol</div><div class="pc-type">Permanently removing an agent from the system</div></div>
+          <div class="pc-toggle" id="toggle-remove">▼</div>
+        </div>
+        <div class="pc-body" id="body-remove">
+          <div class="pc-steps">
+            <div class="pc-step"><div class="pc-step-num">1</div><div class="pc-step-content"><div class="pc-step-title">Dependency audit</div><div class="pc-step-desc">Check who depends on this agent. If any other agent lists it as a dependency, those agents must be updated or removed first. No orphaned dependencies allowed.</div><div class="pc-gate">🛡️ GATE — Cannot remove if active dependencies exist. Resolve dependencies first.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">2</div><div class="pc-step-content"><div class="pc-step-title">Drain active tasks</div><div class="pc-step-desc">Check task log for any in-flight tasks assigned to this agent. Complete or manually redirect all active tasks before removal.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">3</div><div class="pc-step-content"><div class="pc-step-title">Remove routing from n8n and EPIK Brain</div><div class="pc-step-desc">Delete the trigger in n8n. Update EPIK Brain's system prompt to remove routing references. Test that EPIK Brain handles requests that would have gone to this agent gracefully.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">4</div><div class="pc-step-content"><div class="pc-step-title">Mark DEPRECATED in Registry</div><div class="pc-step-desc">Never delete a Registry row — set status to DEPRECATED with a deprecation date and reason. Archived rubric files are kept. System prompt is archived, not deleted.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">5</div><div class="pc-step-content"><div class="pc-step-title">Log to Changelog</div><div class="pc-step-desc">Add Changelog entry with type REMOVE, including the reason for removal and what (if anything) replaced it.</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="protocol-card">
+        <div class="pc-header" onclick="toggleProtocol('newpipe')">
+          <div class="pc-icon">🔀</div>
+          <div><div class="pc-name">NEW PIPELINE Protocol</div><div class="pc-type">Adding an entirely new pipeline equivalent to Media or Dev Studio</div></div>
+          <div class="pc-toggle" id="toggle-newpipe">▼</div>
+        </div>
+        <div class="pc-body" id="body-newpipe">
+          <div class="pc-steps">
+            <div class="pc-step"><div class="pc-step-num">1</div><div class="pc-step-content"><div class="pc-step-title">Define pipeline scope and ownership</div><div class="pc-step-desc">A pipeline needs: a named domain, a human owner, a clear entry point (what triggers it), and a clear exit point (what it delivers). Write this 1-pager before anything else.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">2</div><div class="pc-step-content"><div class="pc-step-title">Identify shared vs new agents</div><div class="pc-step-desc">Check the Registry. Can existing agents (PRD, Coder, etc.) be reused with context mode? If yes, use MODIFY Protocol on them. If no, use ADD Protocol for each new agent.</div><div class="pc-gate">🛡️ GATE — Default to reusing shared agents. Only create new agents when the function is genuinely different.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">3</div><div class="pc-step-content"><div class="pc-step-title">Write all rubric files for new QA gates</div><div class="pc-step-desc">Every QA gate in the new pipeline needs a rubric file before any agent is built. Minimum 5 checklist items per rubric.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">4</div><div class="pc-step-content"><div class="pc-step-title">Add Domain Lead to EPIK Brain routing</div><div class="pc-step-desc">The new pipeline's Domain Lead must be registered in the Agent Registry and added to EPIK Brain's routing logic before any task can enter the pipeline.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">5</div><div class="pc-step-content"><div class="pc-step-title">Add Memory Layer section</div><div class="pc-step-desc">Create a new folder in the Memory Layer Notion DB for this pipeline's context documents. At minimum: product/domain spec + brand/voice guide if applicable.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">6</div><div class="pc-step-content"><div class="pc-step-title">Wire n8n + run dry-run end-to-end</div><div class="pc-step-desc">Build the full trigger chain in n8n. Run 3 dry-run tasks through the complete pipeline before going live. All QA gates must fire correctly in dry-run.</div></div></div>
+            <div class="pc-step"><div class="pc-step-num">7</div><div class="pc-step-content"><div class="pc-step-title">Log all agents + pipeline to Registry and Changelog</div><div class="pc-step-desc">Every agent in the new pipeline gets a Registry row. One Changelog entry per agent (type ADD) + one entry for the pipeline itself.</div></div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="gov-section">
+    <div class="gov-section-title">Agent Registration Checklist</div>
+    <div class="checklist-grid">
+      <div class="checklist-card">
+        <div class="cc-title" style="color:var(--orch)">// Before Building</div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">Agent function defined in 1 paragraph</div></div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">Pipeline and position in pipeline identified</div></div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">Gate type decided: AUTO / HUMAN / ASYNC</div></div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">Rubric file written (min 5 checklist items)</div></div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">Dependencies listed (what does it read from?)</div></div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">Owner assigned</div></div>
+      </div>
+      <div class="checklist-card">
+        <div class="cc-title" style="color:var(--async)">// During Build</div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">Registry row added with status BUILDING</div></div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">System prompt written and includes Memory Layer context</div></div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">Output format is structured and parseable</div></div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">EPIK Brain routing updated (if Domain Lead)</div></div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">n8n trigger wired</div></div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">3 dry-run tasks tested successfully</div></div>
+      </div>
+      <div class="checklist-card">
+        <div class="cc-title" style="color:var(--gov)">// Before Going Live</div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">All QA gates fire correctly in dry-run</div></div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">Error/escalation path tested (intentional fail)</div></div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">Registry status updated to ACTIVE</div></div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">Changelog entry added (type: ADD)</div></div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">Dependent agents notified of new upstream</div></div>
+        <div class="cc-item" onclick="toggleCheck(this)"><div class="cc-box"><span class="cc-check">✓</span></div><div class="cc-text">Team briefed on new agent's function</div></div>
       </div>
     </div>
+  </div>
+</div>
+</div>
 
-    <!-- ── DOMAIN LEADS ── -->
-    <div class="bp-row domain-row">
-      <div class="domain-node" style="--dn-color:var(--dev);" onclick="showDetail('dev-lead')">
-        <div class="dn-label">Dev Studio Lead</div>
-        <div class="dn-name">🏗️ Client Delivery</div>
-        <div class="dn-sub">Brief → Ship. Confirms routing to Orchestrator within 5min.</div>
+<!-- ══════════════════════════════════════
+     VIEW 4: CHANGELOG
+══════════════════════════════════════ -->
+<div class="view" id="view-changelog">
+<div class="cl-wrap">
+  <div class="cl-title">System <span>Changelog</span></div>
+  <div class="cl-sub">// Version history · Every structural change logged here · Immutable record</div>
+
+  <div class="cl-timeline" id="cl-timeline"></div>
+
+  <div class="cl-add-entry" style="margin-top:32px;">
+    <div class="cl-add-form">
+      <div class="cl-form-title">// LOG NEW ENTRY</div>
+      <div class="cl-form-row">
+        <input class="cl-input" id="cl-version" placeholder="Version (e.g. v3.2)">
+        <input class="cl-input" id="cl-agent" placeholder="Agent or component name">
+        <select class="cl-input cl-select" id="cl-type">
+          <option value="add">ADD — New agent/pipeline</option>
+          <option value="modify">MODIFY — Changed behavior</option>
+          <option value="remove">REMOVE — Deprecated</option>
+          <option value="fix">FIX — Bug/issue resolved</option>
+          <option value="gov">GOVERNANCE — Protocol change</option>
+        </select>
       </div>
-      <div class="domain-node" style="--dn-color:var(--media);" onclick="showDetail('media-lead')">
-        <div class="dn-label">Media Lead</div>
-        <div class="dn-name">📡 Infia Techno</div>
-        <div class="dn-sub">Human sets direction. Daily pipeline. 1M followers.</div>
+      <div style="margin-bottom:10px;">
+        <input class="cl-input" id="cl-desc" placeholder="Describe the change and why..." style="width:100%;">
       </div>
-      <div class="domain-node" style="--dn-color:var(--rnd);" onclick="showDetail('rnd-lead')">
-        <div class="dn-label">R&D Lead</div>
-        <div class="dn-name">🔬 Products</div>
-        <div class="dn-sub">POC→MVP→Prod. Shares agents with Dev Studio.</div>
-      </div>
-      <div class="domain-node" style="--dn-color:var(--mem);" onclick="showDetail('mem-sync')">
-        <div class="dn-label">Memory Sync</div>
-        <div class="dn-name">🗄️ Weekly Audit</div>
-        <div class="dn-sub">Flags stale context. Version control. Human sign-off.</div>
-      </div>
+      <button class="cl-submit" onclick="addChangelogEntry()">+ Log Entry</button>
     </div>
-
-    <!-- ── 3 PIPELINES ── -->
-    <div class="pipelines-area" id="pipelines-area">
-
-      <!-- DEV STUDIO -->
-      <div class="pipe-col">
-        <div class="pipe-header">
-          <div class="pipe-header-dot" style="background:var(--dev)"></div>
-          <div class="pipe-header-name" style="color:var(--dev)">Dev Studio Pipeline</div>
-        </div>
-
-        <div class="human-step">
-          <span>👤</span>
-          <span class="human-step-text">Client brief enters via Slack / email / Notion intake</span>
-        </div>
-
-        <div class="agent-step" onclick="showDetail('intake')">
-          <div class="as-connector"></div>
-          <div class="as-top">
-            <span class="as-icon">📥</span>
-            <div style="flex:1;">
-              <div class="as-name">Intake & Scoping Agent</div>
-              <div class="as-role">Brief → Structured Scope Doc</div>
-            </div>
-            <span class="as-gate-badge gate-auto">AUTO</span>
-          </div>
-        </div>
-
-        <div class="qa-step">
-          <span class="qa-step-icon">🛡️</span>
-          <div>
-            <div class="qa-step-text">QA 1 — Scope completeness check</div>
-            <div class="qa-retry">↺ max 2 retries → escalate to human</div>
-          </div>
-        </div>
-
-        <div class="agent-step" onclick="showDetail('prd')">
-          <div class="as-connector"></div>
-          <div class="as-top">
-            <span class="as-icon">📋</span>
-            <div style="flex:1;">
-              <div class="as-name">PRD Agent</div>
-              <div class="as-role">Scope → Full Requirements Doc</div>
-            </div>
-            <span class="as-gate-badge gate-human">HUMAN</span>
-          </div>
-        </div>
-
-        <div class="qa-step">
-          <span class="qa-step-icon">🛡️</span>
-          <div>
-            <div class="qa-step-text">QA 2 — PRD rubric · human gate</div>
-            <div class="qa-retry">↺ max 2 retries → escalate</div>
-          </div>
-        </div>
-
-        <div class="loop-step">
-          <span style="color:var(--dev);font-size:11px;">⇄</span>
-          <span class="loop-step-text">ITERATIVE — PRD ↔ UI/UX loop until both pass QA</span>
-        </div>
-
-        <div class="agent-step" onclick="showDetail('uiux')">
-          <div class="as-connector"></div>
-          <div class="as-top">
-            <span class="as-icon">🎨</span>
-            <div style="flex:1;">
-              <div class="as-name">UI/UX Agent</div>
-              <div class="as-role">Design Spec · Components · Figma Prompts</div>
-            </div>
-            <span class="as-gate-badge gate-human">HUMAN</span>
-          </div>
-        </div>
-
-        <div class="qa-step">
-          <span class="qa-step-icon">🛡️</span>
-          <div>
-            <div class="qa-step-text">QA 3 — Design rubric · human gate</div>
-            <div class="qa-retry">↺ max 2 retries → escalate</div>
-          </div>
-        </div>
-
-        <div class="agent-step" onclick="showDetail('coder')">
-          <div class="as-connector"></div>
-          <div class="as-top">
-            <span class="as-icon">💻</span>
-            <div style="flex:1;">
-              <div class="as-name">Coder Agent</div>
-              <div class="as-role">Claude Code · GitHub · Tasks</div>
-            </div>
-            <span class="as-gate-badge gate-auto">AUTO</span>
-          </div>
-        </div>
-
-        <div class="qa-step">
-          <span class="qa-step-icon">🛡️</span>
-          <div>
-            <div class="qa-step-text">QA 4 — Lint · tests · acceptance criteria</div>
-            <div class="qa-retry">↺ max 2 retries → escalate</div>
-          </div>
-        </div>
-
-        <div class="agent-step" onclick="showDetail('delivery')">
-          <div class="as-connector"></div>
-          <div class="as-top">
-            <span class="as-icon">🚀</span>
-            <div style="flex:1;">
-              <div class="as-name">Delivery Agent</div>
-              <div class="as-role">Docs · Client Summary · Handoff</div>
-            </div>
-            <span class="as-gate-badge gate-human">HUMAN</span>
-          </div>
-        </div>
-
-        <div class="qa-step" style="border-bottom:none;">
-          <span class="qa-step-icon">🛡️</span>
-          <div>
-            <div class="qa-step-text">QA 5 — Final delivery · human approves</div>
-            <div class="qa-retry">↺ max 2 retries → escalate</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MEDIA PIPELINE -->
-      <div class="pipe-col">
-        <div class="pipe-header">
-          <div class="pipe-header-dot" style="background:var(--media)"></div>
-          <div class="pipe-header-name" style="color:var(--media)">Media Pipeline</div>
-        </div>
-
-        <div class="human-step">
-          <span>👤</span>
-          <span class="human-step-text">Creative direction: trend topic / brief / paid placement flag</span>
-        </div>
-
-        <div class="agent-step" onclick="showDetail('research')">
-          <div class="as-connector"></div>
-          <div class="as-top">
-            <span class="as-icon">🔍</span>
-            <div style="flex:1;">
-              <div class="as-name">Research Agent</div>
-              <div class="as-role">Daily 07:00 WIB · Web Search · Ranked Brief</div>
-            </div>
-            <span class="as-gate-badge gate-auto">AUTO</span>
-          </div>
-        </div>
-
-        <div class="qa-step">
-          <span class="qa-step-icon">🛡️</span>
-          <div>
-            <div class="qa-step-text">QA 1 — Source credibility · angle strength</div>
-            <div class="qa-retry">↺ max 2 retries → escalate</div>
-          </div>
-        </div>
-
-        <div class="loop-step">
-          <span style="color:var(--media);font-size:11px;">⇉</span>
-          <span class="loop-step-text">PARALLEL — 3 writer sub-agents run simultaneously</span>
-        </div>
-
-        <div class="agent-step" onclick="showDetail('news-writer')">
-          <div class="as-connector"></div>
-          <div class="as-top">
-            <span class="as-icon">📰</span>
-            <div style="flex:1;">
-              <div class="as-name">News Article Agent</div>
-              <div class="as-role">500–900w · Journalistic · SEO</div>
-            </div>
-            <span class="as-gate-badge gate-async">ASYNC</span>
-          </div>
-        </div>
-
-        <div class="agent-step" onclick="showDetail('social-writer')">
-          <div class="as-top">
-            <span class="as-icon">📱</span>
-            <div style="flex:1;">
-              <div class="as-name">Social Caption Agent</div>
-              <div class="as-role">IG + Twitter · Platform-native tone</div>
-            </div>
-            <span class="as-gate-badge gate-async">ASYNC</span>
-          </div>
-        </div>
-
-        <div class="agent-step" onclick="showDetail('paid-pr')">
-          <div class="as-top">
-            <span class="as-icon">💼</span>
-            <div style="flex:1;">
-              <div class="as-name">Paid PR Agent</div>
-              <div class="as-role">Conditional · paid_post:true only</div>
-            </div>
-            <span class="as-gate-badge gate-human">HUMAN</span>
-          </div>
-        </div>
-
-        <div class="qa-step">
-          <span class="qa-step-icon">🛡️</span>
-          <div>
-            <div class="qa-step-text">QA 2 — Brand voice · facts · disclosure · 2hr rollback</div>
-            <div class="qa-retry">↺ max 2 retries → escalate</div>
-          </div>
-        </div>
-
-        <div class="agent-step" onclick="showDetail('publisher')">
-          <div class="as-connector"></div>
-          <div class="as-top">
-            <span class="as-icon">📤</span>
-            <div style="flex:1;">
-              <div class="as-name">Publishing Agent</div>
-              <div class="as-role">Instagram · Website · Scheduler</div>
-            </div>
-            <span class="as-gate-badge gate-async">ASYNC</span>
-          </div>
-        </div>
-
-        <div class="qa-step" style="border-bottom:none;">
-          <span class="qa-step-icon">🛡️</span>
-          <div>
-            <div class="qa-step-text">QA 3 — Publish confirmation · engagement log</div>
-            <div class="qa-retry">auto-approved · metrics logged to Notion</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- R&D PIPELINE -->
-      <div class="pipe-col">
-        <div class="pipe-header">
-          <div class="pipe-header-dot" style="background:var(--rnd)"></div>
-          <div class="pipe-header-name" style="color:var(--rnd)">R&D Pipeline</div>
-        </div>
-
-        <div class="human-step">
-          <span>👤</span>
-          <span class="human-step-text">Raw product idea from Akhri or entity lead</span>
-        </div>
-
-        <div class="agent-step" onclick="showDetail('ideation')">
-          <div class="as-connector"></div>
-          <div class="as-top">
-            <span class="as-icon">💡</span>
-            <div style="flex:1;">
-              <div class="as-name">Ideation & Validation Agent</div>
-              <div class="as-role">Feasibility · Comparables · Go/No-Go Brief</div>
-            </div>
-            <span class="as-gate-badge gate-human">HUMAN</span>
-          </div>
-        </div>
-
-        <div class="qa-step">
-          <span class="qa-step-icon">🛡️</span>
-          <div>
-            <div class="qa-step-text">QA 1 — Go/No-go · resource commitment gate</div>
-            <div class="qa-retry">human decides · no retries</div>
-          </div>
-        </div>
-
-        <div class="agent-step" onclick="showDetail('prd')">
-          <div class="as-connector"></div>
-          <div class="as-top">
-            <span class="as-icon">📋</span>
-            <div style="flex:1;">
-              <div class="as-name">PRD Agent</div>
-              <div class="as-role">Shared · POC-scoped (1 core feature)</div>
-            </div>
-            <span class="as-gate-badge gate-human">HUMAN</span>
-          </div>
-        </div>
-
-        <div class="qa-step">
-          <span class="qa-step-icon">🛡️</span>
-          <div>
-            <div class="qa-step-text">QA 2 — PRD rubric · stage-aware scope check</div>
-            <div class="qa-retry">↺ max 2 retries → escalate</div>
-          </div>
-        </div>
-
-        <div class="loop-step">
-          <span style="color:var(--rnd);font-size:11px;">⇄</span>
-          <span class="loop-step-text">ITERATIVE — UI/UX ↔ PRD loop (text wireframes for POC)</span>
-        </div>
-
-        <div class="agent-step" onclick="showDetail('uiux')">
-          <div class="as-connector"></div>
-          <div class="as-top">
-            <span class="as-icon">🎨</span>
-            <div style="flex:1;">
-              <div class="as-name">UI/UX Agent</div>
-              <div class="as-role">Shared · POC = text wireframes only</div>
-            </div>
-            <span class="as-gate-badge gate-human">HUMAN</span>
-          </div>
-        </div>
-
-        <div class="agent-step" onclick="showDetail('coder')">
-          <div class="as-top">
-            <span class="as-icon">💻</span>
-            <div style="flex:1;">
-              <div class="as-name">Coder Agent</div>
-              <div class="as-role">Shared · POC = speed over polish</div>
-            </div>
-            <span class="as-gate-badge gate-auto">AUTO</span>
-          </div>
-        </div>
-
-        <div class="qa-step">
-          <span class="qa-step-icon">🛡️</span>
-          <div>
-            <div class="qa-step-text">QA 3 — Core assumption demonstrable?</div>
-            <div class="qa-retry">↺ max 2 retries → escalate</div>
-          </div>
-        </div>
-
-        <div class="agent-step" onclick="showDetail('stagegate')">
-          <div class="as-connector"></div>
-          <div class="as-top">
-            <span class="as-icon">📈</span>
-            <div style="flex:1;">
-              <div class="as-name">Stage Gate Agent</div>
-              <div class="as-role">POC→MVP: 3/3 evidence · MVP→Prod: 4/6</div>
-            </div>
-            <span class="as-gate-badge gate-human">HUMAN</span>
-          </div>
-        </div>
-
-        <div class="qa-step" style="border-bottom:none;">
-          <span class="qa-step-icon">🛡️</span>
-          <div>
-            <div class="qa-step-text">QA 4 — Evidence checklist complete · human checks boxes in Notion</div>
-            <div class="qa-retry">cannot advance without evidence</div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /pipelines-area -->
-
-    <!-- DETAIL PANEL (inside pipeline col) -->
-    <div class="detail-panel" id="detail-panel">
-      <div class="dp-header">
-        <div>
-          <div class="dp-title" id="dp-title">—</div>
-          <div class="dp-sub" id="dp-sub">—</div>
-        </div>
-        <button class="dp-close" onclick="closeDetail()">✕ close</button>
-      </div>
-      <div class="dp-grid" id="dp-grid"></div>
-      <div class="dp-rubric" id="dp-rubric" style="display:none;"></div>
-    </div>
-
-    <!-- ── ERROR PROTOCOL ── -->
-    <div class="error-row">
-      <span class="ef-label">ERROR PROTOCOL →</span>
-      <div class="error-flow">
-        <div class="ef-box" style="border-color:var(--border2);color:var(--muted)">Attempt 1</div>
-        <span class="ef-arrow">→</span>
-        <div class="ef-box" style="border-color:var(--qa);color:var(--qa)">QA FAIL</div>
-        <span class="ef-arrow">→</span>
-        <div class="ef-box" style="border-color:var(--border2);color:var(--muted)">Attempt 2 + reason</div>
-        <span class="ef-arrow">→</span>
-        <div class="ef-box" style="border-color:var(--qa);color:var(--qa)">QA FAIL</div>
-        <span class="ef-arrow">→</span>
-        <div class="ef-box" style="border-color:var(--human);color:var(--human)">🚨 ESCALATE</div>
-        <span class="ef-arrow">→</span>
-        <div class="ef-box" style="border-color:var(--async);color:var(--async)">Slack DM → Akhri</div>
-        <span class="ef-arrow">→</span>
-        <div class="ef-box" style="border-color:var(--muted);color:var(--muted)">RETRY / SKIP / MANUAL</div>
-      </div>
-    </div>
-
-    <!-- ── MEMORY STRIP ── -->
-    <div class="memory-strip">
-      <span class="ms-label">🗄️ MEMORY LAYER →</span>
-      <div class="ms-docs">
-        <span class="ms-doc">epik_structure</span>
-        <span class="ms-doc">team_roles</span>
-        <span class="ms-doc">gudangin_spec</span>
-        <span class="ms-doc">mycelium_spec</span>
-        <span class="ms-doc">infia_voice</span>
-        <span class="ms-doc">parallax_pitch</span>
-        <span class="ms-doc">prd_rubric</span>
-        <span class="ms-doc">uiux_rubric</span>
-        <span class="ms-doc">code_rubric</span>
-        <span class="ms-doc">media_rubric</span>
-        <span class="ms-doc">stage_evidence</span>
-        <span class="ms-doc stale">⚠ popcard_spec (stale?)</span>
-      </div>
-    </div>
-
-    <!-- ── TASK STATES ── -->
-    <div class="task-states-row">
-      <span class="ts-label">TASK STATES →</span>
-      <span class="ts-badge" style="background:rgba(0,255,178,0.08);border:1px solid rgba(0,255,178,0.2);color:var(--auto)">PENDING</span>
-      <span class="ts-badge" style="background:rgba(77,158,255,0.08);border:1px solid rgba(77,158,255,0.2);color:var(--dev)">CONFIRMED</span>
-      <span class="ts-badge" style="background:rgba(61,255,160,0.08);border:1px solid rgba(61,255,160,0.2);color:var(--rnd)">IN_PROGRESS</span>
-      <span class="ts-badge" style="background:rgba(255,61,107,0.08);border:1px solid rgba(255,61,107,0.2);color:var(--qa)">QA_REVIEW</span>
-      <span class="ts-badge" style="background:rgba(192,132,252,0.08);border:1px solid rgba(192,132,252,0.2);color:var(--human)">BLOCKED</span>
-      <span class="ts-badge" style="background:rgba(255,61,107,0.12);border:1px solid rgba(255,61,107,0.3);color:var(--qa)">ESCALATED</span>
-      <span class="ts-badge" style="background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.2);color:var(--mem)">DEAD_LETTER</span>
-      <span class="ts-badge" style="background:rgba(0,255,178,0.04);border:1px solid rgba(0,255,178,0.1);color:var(--muted)">COMPLETED</span>
-    </div>
-
-    <!-- ── FOUNDATION ── -->
-    <div class="foundation-row">
-      <div class="found-cell">
-        <div class="found-title" style="color:var(--mem)">🗄️ Memory & Context Layer</div>
-        <div class="found-items">
-          <div class="found-item"><div class="found-dot" style="background:var(--mem)"></div>Notion DB · versioned · expiry dates</div>
-          <div class="found-item"><div class="found-dot" style="background:var(--mem)"></div>Weekly sync agent · human sign-off</div>
-          <div class="found-item"><div class="found-dot" style="background:var(--mem)"></div>QA rubric files · 7 documents</div>
-          <div class="found-item"><div class="found-dot" style="background:var(--mem)"></div>Stage evidence checklists</div>
-          <div class="found-item"><div class="found-dot" style="background:var(--mem)"></div>Vector store upgrade: phase 2</div>
-        </div>
-      </div>
-      <div class="found-cell">
-        <div class="found-title" style="color:var(--async)">⚡ Trigger & Routing Layer</div>
-        <div class="found-items">
-          <div class="found-item"><div class="found-dot" style="background:var(--async)"></div>n8n · Slack → EPIK Brain webhook</div>
-          <div class="found-item"><div class="found-dot" style="background:var(--async)"></div>Daily 07:00 cron → Research Agent</div>
-          <div class="found-item"><div class="found-dot" style="background:var(--async)"></div>Weekly Monday cron → Memory Sync</div>
-          <div class="found-item"><div class="found-dot" style="background:var(--async)"></div>GitHub push → QA notify</div>
-          <div class="found-item"><div class="found-dot" style="background:var(--async)"></div>Escalation → Slack DM to Akhri</div>
-        </div>
-      </div>
-      <div class="found-cell">
-        <div class="found-title" style="color:var(--qa)">📋 Task Log</div>
-        <div class="found-items">
-          <div class="found-item"><div class="found-dot" style="background:var(--qa)"></div>All tasks: ID · state · timestamps</div>
-          <div class="found-item"><div class="found-dot" style="background:var(--qa)"></div>Routing confirmations (30min SLA)</div>
-          <div class="found-item"><div class="found-dot" style="background:var(--qa)"></div>Dead-letter queue · manual review</div>
-          <div class="found-item"><div class="found-dot" style="background:var(--qa)"></div>Retry logs + failure reasons</div>
-          <div class="found-item"><div class="found-dot" style="background:var(--qa)"></div>90-day archive</div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /pipeline-col -->
-</div><!-- /main -->
-</div><!-- /canvas -->
+  </div>
+</div>
+</div>
 
 <script>
-const details = {
-  orchestrator: {
-    title:'🧠 EPIK Brain — Orchestrator', sub:'Tier 0 · Master coordinator · All pipelines route through here', color:'var(--orch)',
-    cols:[
-      {title:'Responsibilities', items:['Receives goals from Akhri via Slack or Notion','Routes tasks to correct domain lead with task_id','Waits for routing confirmation within 30 minutes','Re-routes or escalates on timeout — never silent','Weekly digest of all pipeline status to Akhri','Maintains Dead-Letter Queue for failed routing']},
-      {title:'Routing Confirmation Loop', items:['Task dispatched → domain lead must confirm in 5min','Orchestrator marks task CONFIRMED in task log','30min with no confirm → re-route attempt','2nd failed route → DEAD_LETTER + Slack alert','Human can re-route from DLQ via Slack reply command','Every task has a traceable lifecycle state']},
-      {title:'Tools & Build', items:['Claude API (Sonnet) + system prompt with EPIK context','n8n: Slack DM webhook → EPIK Brain → routing logic','Notion task log API for state management','Build in Week 1 alongside Memory Layer','This is the first thing you touch after filling Notion']}
-    ],
-    rubric:null
-  },
-  'dev-lead': {
-    title:'🏗️ Dev Studio Lead', sub:'Domain Head · Tier 1 · Owns client delivery end-to-end', color:'var(--dev)',
-    cols:[
-      {title:'Responsibilities', items:['Receives brief from Orchestrator, sends routing confirmation','Manages Intake → PRD → UI/UX → Code → Delivery loop','Surfaces blockers to EPIK Brain','Reports project status on each stage completion','Handles client communication routing via Slack']},
-      {title:'Gate Authority', items:['QA 1 (Scope): auto-approve','QA 2 (PRD): human-in-loop — client contract risk','QA 3 (UI/UX): human-in-loop — before dev cost','QA 4 (Code): auto-approve if tests pass','QA 5 (Delivery): human-in-loop — client-facing']},
-      {title:'Build Notes', items:['Configure after EPIK Brain and Memory Layer are stable','System prompt includes all Dev Studio context from Memory Layer','Week 3 target']}
-    ]
-  },
-  'media-lead': {
-    title:'📡 Media Lead', sub:'Domain Head · Tier 1 · Infia Techno · 1M followers', color:'var(--media)',
-    cols:[
-      {title:'Responsibilities', items:['Human (Akhri or team) sets creative direction daily','Routes: trend topic vs paid brief to correct sub-agents','Manages posting schedule via n8n','Ensures Infia brand consistency across outputs','Reports content performance weekly to EPIK Brain']},
-      {title:'Gate Authority', items:['QA 1 (Research): auto-approve','QA 2 (Content): async — 2hr rollback window for organic','Paid PR: always human-in-loop — compliance risk','QA 3 (Publish): auto-approve after human approved content']},
-      {title:'Build Notes', items:['Week 2 — highest immediate ROI pipeline','Infia brand voice doc in Memory Layer is the key dependency','Research Agent + Writer Agents can be built in days']}
-    ]
-  },
-  'rnd-lead': {
-    title:'🔬 R&D Lead', sub:'Domain Head · Tier 1 · POC → MVP → Production', color:'var(--rnd)',
-    cols:[
-      {title:'Responsibilities', items:['Owns all internal product development at EPIK','Prioritizes which product gets R&D resources','Shares PRD, UI/UX, Coder agents with Dev Studio','Stage gates each product with hard evidence checklists','Reports product stage status to EPIK Brain weekly']},
-      {title:'Stage Gate Rules', items:['POC→MVP: 3/3 evidence required (tested, feasible, signed-off)','MVP→Prod: 4/6 evidence required (10+ users, metrics, security, docs, errors, stakeholder)','Human must check Notion boxes — agent cannot self-advance','Stale product (30+ days same stage) triggers weekly nudge']},
-      {title:'Build Notes', items:['Week 3–4 — shares most agents with Dev Studio','Ideation Agent is unique to this pipeline','Stage Gate Agent formalizes what happens manually now']}
-    ]
-  },
-  'mem-sync': {
-    title:'🗄️ Memory Sync Agent', sub:'Weekly audit · Context versioning · Staleness detection', color:'var(--mem)',
-    cols:[
-      {title:'How It Works', items:['Runs every Monday 09:00 WIB via n8n cron','Checks last_updated timestamp on every Memory Layer doc','Flags any doc older than 30 days as potentially stale','Sends Slack digest to Akhri: list of flagged docs','After human reviews: version number increments, reviewed_by updated','Agents re-load context if version changed since last run']},
-      {title:'Document Schema', items:['doc_id · category · version (v1, v2…)','last_updated: ISO timestamp','reviewed_by: human name','expires_after: 30d / 90d / never','used_by: which agents load this doc']},
-      {title:'Build Notes', items:['Phase 4 — Week 6–7','Simple n8n workflow checking Notion page updated_at fields','Slack message with Notion links is enough to start','Vector store upgrade (Supabase + pgvector) is phase 2']}
-    ]
-  },
-  intake: {
-    title:'📥 Intake & Scoping Agent', sub:'Dev Studio · Entry point · Brief → Structured Scope Doc', color:'var(--dev)',
-    cols:[
-      {title:'What It Does', items:['Parses client brief from any format (Slack, email, Notion)','Asks up to 5 structured clarifying questions via Slack','Extracts: project type, stack, timeline, budget, success criteria','Outputs a standardized scope doc to Notion','Loads scope completeness rubric from Memory Layer','Auto-approve gate if rubric score ≥ 80%']},
-      {title:'QA Gate 1 — AUTO', items:['Rubric: scope_rubric.md from Memory Layer','Checks: all required fields present, no ambiguous language','Threshold: 80% → auto-pass, <80% → retry','Max 2 retries, then escalate to human','Escalation message includes: input brief + rubric score + gaps']},
-      {title:'Build', items:['Claude API with structured output (JSON scope doc)','n8n: routes scope doc to PRD Agent on auto-pass','Week 3 — after EPIK Brain and Media pipeline stable']}
-    ],
-    rubric:'SCOPE RUBRIC (scope_rubric.md)\n[ ] Project type identified (web / mobile / smart contract / other)\n[ ] Primary stakeholder or client named\n[ ] Core feature list present (even if rough)\n[ ] Timeline or deadline mentioned\n[ ] Tech stack preference noted (or explicitly unknown)\n[ ] Success criteria defined\n[ ] Out-of-scope explicitly stated\n[ ] Budget range or constraint noted'
-  },
-  prd: {
-    title:'📋 PRD Agent', sub:'Shared · Dev Studio + R&D · Stage-aware scope mode', color:'var(--dev)',
-    cols:[
-      {title:'What It Does', items:['Reads scope doc from Notion (Dev) or feasibility brief (R&D)','Generates full PRD: user roles, features, user flows, acceptance criteria, tech constraints','POC mode: 1 core feature, hardcoded is fine','MVP mode: full feature set, no performance optimization yet','Production mode: full spec including non-functionals','Loads prd_rubric.md before every evaluation']},
-      {title:'QA Gate 2 — HUMAN', items:['Rubric: prd_rubric.md from Memory Layer','Checks: all user roles defined, acceptance criteria per feature, scope bounded, no ambiguous language','Human-in-loop: too much cost/client risk to auto-approve','Max 2 retries before escalation','Iterative with UI/UX Agent until both pass']},
-      {title:'Build', items:['Single agent with stage-mode parameter (POC/MVP/PROD)','Context from Memory Layer: product specs, tech constraints','Week 3 — one build covers both Dev Studio and R&D']}
-    ],
-    rubric:'PRD RUBRIC (prd_rubric.md)\n[ ] All user roles defined (max 3 for POC)\n[ ] Acceptance criteria present — per feature, testable\n[ ] Tech stack specified or explicitly deferred\n[ ] No ambiguous language: no "should", "might", "could"\n[ ] Scope is bounded — what is explicitly OUT of scope\n[ ] Timeline estimate present (rough is fine)\n[ ] At least 1 non-functional requirement noted\n[ ] Stage-appropriate depth (POC ≠ Production)'
-  },
-  uiux: {
-    title:'🎨 UI/UX Agent', sub:'Shared · Dev Studio + R&D · Design spec · Figma prompts', color:'var(--dev)',
-    cols:[
-      {title:'What It Does', items:['Reads approved PRD from Notion','Generates: screen inventory, component list, user flow diagrams (text-based)','Writes Figma AI prompt instructions per screen','POC mode: text wireframes only — no visual polish','MVP mode: full component spec, responsive layout','Flags PRD inconsistencies back to PRD Agent (loop)']},
-      {title:'QA Gate 3 — HUMAN', items:['Rubric: uiux_rubric.md from Memory Layer','Checks: all PRD screens covered, components listed, flows logical, no missing states','Human-in-loop: approves before dev cost starts','Max 2 retries before escalation','Loop with PRD Agent until both pass QA']},
-      {title:'Build', items:['Phase 3 — Week 4–5','Text-based output is enough to start (no Figma API needed yet)','Figma plugin integration is a later upgrade','Humans handle Figma initially — agent generates the instructions']}
-    ]
-  },
-  coder: {
-    title:'💻 Coder Agent', sub:'Shared · Dev Studio + R&D · Claude Code · GitHub', color:'var(--dev)',
-    cols:[
-      {title:'What It Does', items:['Reads approved PRD + design spec from Notion','Generates GitHub Issues as task breakdown','Writes boilerplate code, smart contracts, component scaffolding','Runs iteratively via Claude Code CLI','Commits to GitHub with structured PR descriptions','POC: speed over quality · Production: full test coverage']},
-      {title:'QA Gate 4 — AUTO', items:['Rubric: code_rubric.md from Memory Layer','Auto-approve if: linting passes, tests pass, acceptance criteria met','Checks against PRD acceptance criteria programmatically','Max 2 retries before escalation','For Web3: includes contract audit checklist']},
-      {title:'Build', items:['Available NOW via Claude Code CLI','Add CLAUDE.md context files to all Parallax repos this week','CLAUDE.md should reference: product spec, tech stack, coding standards','This is the easiest agent to activate — no new infrastructure needed']}
-    ],
-    rubric:'CODE RUBRIC (code_rubric.md)\n[ ] Linting passes (no errors, warnings acceptable)\n[ ] Unit tests pass (min coverage per stage: POC=0, MVP=60%, Prod=80%)\n[ ] All acceptance criteria from PRD implemented\n[ ] No hardcoded secrets or API keys\n[ ] README updated with any new setup steps\n[ ] Web3: no reentrancy vulnerabilities in contracts\n[ ] Error handling on all external API calls\n[ ] PR description matches work done'
-  },
-  delivery: {
-    title:'🚀 Delivery Agent', sub:'Dev Studio · Exit point · Client handoff', color:'var(--dev)',
-    cols:[
-      {title:'What It Does', items:['Compiles docs: README, deployment guide, changelog','Generates non-technical client summary (plain language)','Packages all deliverables to Notion client space','Notifies client via Slack or email','Archives project to Memory Layer task log']},
-      {title:'QA Gate 5 — HUMAN', items:['Checks: docs complete, no open issues, client summary accurate','Human-in-loop — client-facing, irreversible','Max 2 retries before escalation','Akhri or delivery lead must approve before any client contact']},
-      {title:'Build', items:['Phase 3 — Week 5','Simple Claude prompt + Notion page template','Slack/email notification via n8n']}
-    ]
-  },
-  research: {
-    title:'🔍 Research Agent', sub:'Media · Daily 07:00 WIB · Web search · Ranked topic brief', color:'var(--media)',
-    cols:[
-      {title:'What It Does', items:['Scheduled daily at 07:00 WIB via n8n cron','Also triggered on-demand when brief provided by human','Searches: Web3, crypto, tech trends + Indonesia-specific angle','Evaluates trending topics by relevance to Infia audience','Outputs ranked brief: topic, angle, sources, key facts, suggested format','Flags paid_post: true if brief indicates placement']},
-      {title:'QA Gate 1 — AUTO', items:['Rubric: research_rubric.md','Checks: ≥2 credible sources, angle relevant to audience, no factually questionable claims','Auto-approve if score ≥ 80%','Retry: re-search with broader or narrower query','Escalate after 2 fails: human picks topic manually']},
-      {title:'Build', items:['Week 2 — build this first in Media pipeline','Claude API with web search tool enabled','n8n cron job is 5 lines of workflow','Delivers immediate value to Infia team day 1']}
-    ]
-  },
-  'news-writer': {
-    title:'📰 News Article Agent', sub:'Media · Separate sub-agent · Journalistic voice · 500–900w', color:'var(--media)',
-    cols:[
-      {title:'What It Does', items:['Reads research brief from Notion','Applies Infia editorial voice from Memory Layer (infia_voice.md)','Structure: lede → context → expert view/data → conclusion','500–900 words, SEO-aware headline and structure','Never mixes with Paid PR content — separate Notion page','Runs in parallel with Social Caption Agent']},
-      {title:'QA Gate 2 — ASYNC', items:['Rubric: media_article_rubric.md','Checks: tone matches brand voice, factually accurate, structure complete, no unverified claims','ASYNC gate: team notified, pipeline continues','2-hour rollback window before publish','If flagged within 2hr: pipeline pauses, human reviews']},
-      {title:'Build', items:['Week 2 — same sprint as Research Agent','Separate system prompt from Social Caption Agent','Infia brand voice doc is the key input — write this first']}
-    ],
-    rubric:'ARTICLE RUBRIC (media_article_rubric.md)\n[ ] Lede answers: who, what, when, where (if applicable)\n[ ] All factual claims have a source in the research brief\n[ ] Tone matches Infia editorial voice (check voice doc)\n[ ] No clickbait headline — accurate and specific\n[ ] Word count 500–900\n[ ] No promotional language unless flagged as paid\n[ ] Conclusion present and not abrupt\n[ ] SEO: primary keyword in headline and first paragraph'
-  },
-  'social-writer': {
-    title:'📱 Social Caption Agent', sub:'Media · Platform-native tone · IG + Twitter · Runs parallel', color:'var(--media)',
-    cols:[
-      {title:'What It Does', items:['Reads same research brief as News Article Agent','Separate system prompt per platform loaded from Memory Layer','Instagram: visual-first, punchy, 150–220 chars, hashtags','Twitter: sharp take or thread opener, max 280 chars','Both run simultaneously — separate outputs in Notion','Tone is distinct from article: more conversational, direct']},
-      {title:'QA Gate 2 — ASYNC', items:['Rubric: media_social_rubric.md','Checks: platform-native tone, no factual errors, CTA present, within char limit','Same ASYNC gate as article: 2hr rollback window','Common fail: corporate language bleeding in from article style']},
-      {title:'Build', items:['Week 2 — same build as News Article Agent','Load platform-specific style guides into Memory Layer first','2 separate output sections in Notion per content piece']}
-    ]
-  },
-  'paid-pr': {
-    title:'💼 Paid PR Agent', sub:'Media · Conditional · Only fires when paid_post: true', color:'var(--media)',
-    cols:[
-      {title:'What It Does', items:['Triggered only when research brief has paid_post: true flag','Loads sponsor-specific guidelines from Memory Layer (sponsor_guidelines/)','Rewrites in brand-safe, neutral, compliant language','Adds required disclosure labels (#ad, #sponsored, Paid Partnership)','Outputs to separate Notion page — never mixed with organic','Tone hierarchy: sponsor guidelines > Infia voice']},
-      {title:'QA Gate — HUMAN', items:['Rubric: paid_pr_rubric.md','Checks: disclosure label present, sponsor guidelines met, separated from organic content, no misleading claims','Always human-in-loop — compliance and reputation risk','No async option for paid content','Human must physically approve before any publish action']},
-      {title:'Build', items:['Phase 4 — Week 6–7','Build after organic media pipeline is proven and stable','Create sponsor_guidelines/ folder in Memory Layer when first client onboards']}
-    ]
-  },
-  publisher: {
-    title:'📤 Publishing Agent', sub:'Media · Instagram + Website · Scheduler · Engagement log', color:'var(--media)',
-    cols:[
-      {title:'What It Does', items:['Receives approved content after final QA gate','Schedules posts at optimal engagement times per platform','Posts to: Instagram (static + caption), website (article)','Logs publish confirmation + URL to Notion task log','Pulls 24h engagement metrics and reports to Media Lead','Does not publish until all QA gates have passed']},
-      {title:'Tools', items:['Instagram Graph API for direct posting','Website CMS API or webhook for article publish','n8n scheduler for optimal time slots','Buffer/Later as fallback if direct API fails','Engagement metrics pulled via Instagram API']},
-      {title:'Build', items:['Phase 3 — after writer agents proven stable','Start with n8n → Buffer for scheduling (simpler)','Migrate to direct Instagram API when volume justifies it']}
-    ]
-  },
-  ideation: {
-    title:'💡 Ideation & Validation Agent', sub:'R&D · Raw idea → Feasibility brief → Go/No-go', color:'var(--rnd)',
-    cols:[
-      {title:'What It Does', items:['Accepts raw idea in plain language (1 paragraph is enough)','Searches for comparable existing solutions (web search)','Identifies: market gap, technical complexity, estimated timeline','Flags showstoppers: regulatory, technical, resource constraints','Outputs 1-page feasibility brief with explicit Go/No-go recommendation','Does not commit any resources — just analysis']},
-      {title:'QA Gate 1 — HUMAN', items:['This gate is always human — resource commitment decision','No retry logic: human either approves or rejects with reason','Rejection reason archived in Notion for future reference','If Go: brief passed to PRD Agent with stage set to POC','If No-Go: idea archived with reasoning — not discarded silently']},
-      {title:'Build', items:['Phase 4 — Week 5–6','Claude API + web search','Simplest R&D agent to build — mostly a well-crafted prompt','High value: prevents wasted sprints on bad ideas']}
-    ]
-  },
-  stagegate: {
-    title:'📈 Stage Gate Agent', sub:'R&D · POC→MVP→Production · Hard evidence checklists', color:'var(--rnd)',
-    cols:[
-      {title:'Stage Transition Rules', items:['POC → MVP: 3/3 evidence required','  1. Core assumption tested with real user','  2. Technical feasibility confirmed (hardest integration works)','  3. Go decision recorded by Akhri in Notion','MVP → Prod: 4/6 evidence required','  Options: 10+ users tested · metrics defined · security review · docs complete · error handling · stakeholder sign-off']},
-      {title:'How the Agent Works', items:['Reads Notion Stage Evidence Table per product','Cannot advance stage if required checkboxes are unchecked','Human must physically check boxes in Notion — no self-certification','Sends weekly nudge if product stalled 30+ days in same stage','Provides audit trail: every product\'s full progression history','On stage advance: updates PRD Agent context mode (POC/MVP/Prod)']},
-      {title:'Build', items:['Phase 4 — Week 7–8','Notion DB with Stage Evidence Table per product','n8n reads checkbox states weekly and triggers nudges','Formalizes what should already happen manually']}
-    ]
-  }
+// ══ REGISTRY DATA ══
+const agents = [
+  {id:'ORCH-BRAIN',name:'EPIK Brain',icon:'🧠',pipeline:'orchestrator',pipelineColor:'var(--orch)',status:'planned',gate:'—',owner:'Akhri',deps:[],rubric:'—',version:'v1.0',
+   desc:'Master orchestrator. Routes all tasks to domain leads. Maintains routing confirmation loop, dead-letter queue, weekly digest.',
+   tools:['Claude API (Sonnet)','Slack webhook','n8n trigger','Notion task log'],
+   buildNotes:['Week 1 — build before anything else','System prompt encodes full EPIK context','n8n: Slack DM → EPIK Brain → route → confirm'],
+   purpose:'Central nervous system. Without this, agents cannot receive tasks.'},
+
+  {id:'DOM-DEV',name:'Dev Studio Lead',icon:'🏗️',pipeline:'dev',pipelineColor:'var(--dev)',status:'planned',gate:'—',owner:'Akhri',deps:['ORCH-BRAIN'],rubric:'—',version:'v1.0',
+   desc:'Domain head for client delivery. Receives tasks from Orchestrator, confirms routing, manages full Dev Studio pipeline.', tools:['Claude API','Notion','Slack'], buildNotes:['Week 3','Configured after EPIK Brain'], purpose:'Owns client project delivery SLA.'},
+
+  {id:'DOM-MEDIA',name:'Media Lead',icon:'📡',pipeline:'media',pipelineColor:'var(--media)',status:'planned',gate:'—',owner:'Akhri',deps:['ORCH-BRAIN'],rubric:'—',version:'v1.0',
+   desc:'Domain head for Infia Techno. Human sets creative direction daily. Routes trend vs brief vs paid PR.', tools:['Notion','n8n scheduler','Slack'], buildNotes:['Week 2 alongside research agent'], purpose:'Manages 1M-follower media pipeline.'},
+
+  {id:'DOM-RND',name:'R&D Lead',icon:'🔬',pipeline:'rnd',pipelineColor:'var(--rnd)',status:'planned',gate:'—',owner:'Akhri',deps:['ORCH-BRAIN'],rubric:'—',version:'v1.0',
+   desc:'Domain head for internal product development. Owns POC→MVP→Production pipeline. Shares agents with Dev Studio.', tools:['Notion','Claude API'], buildNotes:['Week 3–4'], purpose:'Manages EPIK internal product roadmap.'},
+
+  {id:'MEM-SYNC',name:'Memory Sync Agent',icon:'🗄️',pipeline:'system',pipelineColor:'var(--mem)',status:'planned',gate:'HUMAN',owner:'Akhri',deps:['ORCH-BRAIN'],rubric:'—',version:'v1.0',
+   desc:'Weekly audit of all Memory Layer documents. Flags stale context. Sends digest to Akhri. Increments version numbers after human review.', tools:['n8n cron','Notion API','Slack'], buildNotes:['Week 6–7'], purpose:'Prevents context degradation across all agents.'},
+
+  {id:'DEV-INTAKE',name:'Intake & Scoping Agent',icon:'📥',pipeline:'dev',pipelineColor:'var(--dev)',status:'planned',gate:'AUTO',owner:'Dev Lead',deps:['DOM-DEV','MEM-ORCH'],rubric:'scope_rubric.md',version:'v1.0',
+   desc:'Parses client brief, asks up to 5 clarifying questions, outputs standardized scope doc to Notion.', tools:['Claude API','Slack','Notion','n8n'], buildNotes:['Week 3'], purpose:'Prevents vague briefs from entering PRD Agent.'},
+
+  {id:'SHARED-PRD',name:'PRD Agent',icon:'📋',pipeline:'shared',pipelineColor:'var(--async)',status:'planned',gate:'HUMAN',owner:'Dev Lead / R&D Lead',deps:['DEV-INTAKE','MEM-ORCH'],rubric:'prd_rubric.md',version:'v1.0',
+   desc:'Stage-aware PRD generator. POC mode: 1 core feature. MVP mode: full feature set. Production mode: complete spec with non-functionals. Shared by Dev Studio and R&D.', tools:['Claude API','Notion','Memory Layer'], buildNotes:['Week 3 — one build covers both pipelines','Stage mode passed as context parameter'], purpose:'Single source of product truth for dev and R&D.'},
+
+  {id:'SHARED-UIUX',name:'UI/UX Agent',icon:'🎨',pipeline:'shared',pipelineColor:'var(--async)',status:'planned',gate:'HUMAN',owner:'Dev Lead / R&D Lead',deps:['SHARED-PRD'],rubric:'uiux_rubric.md',version:'v1.0',
+   desc:'Generates design spec from PRD. POC: text wireframes only. MVP: full component spec. Production: Figma-ready spec. Flags PRD inconsistencies back to PRD Agent.', tools:['Claude API','Figma (phase 2)','Notion'], buildNotes:['Week 4–5','Text output first, Figma API later'], purpose:'Translates requirements into buildable design spec.'},
+
+  {id:'SHARED-CODER',name:'Coder Agent',icon:'💻',pipeline:'shared',pipelineColor:'var(--async)',status:'active',gate:'AUTO',owner:'Dev Lead / R&D Lead',deps:['SHARED-UIUX','SHARED-PRD'],rubric:'code_rubric.md',version:'v1.0',
+   desc:'Claude Code CLI. Reads PRD + design spec. Generates GitHub Issues, boilerplate, smart contracts. POC: speed over polish. Production: full test coverage. Already available.', tools:['Claude Code CLI','GitHub','Hardhat/Foundry'], buildNotes:['Available NOW via Claude Code','Add CLAUDE.md to all repos immediately'], purpose:'Core code generation engine across all build pipelines.'},
+
+  {id:'DEV-DELIVERY',name:'Delivery Agent',icon:'🚀',pipeline:'dev',pipelineColor:'var(--dev)',status:'planned',gate:'HUMAN',owner:'Dev Lead',deps:['SHARED-CODER'],rubric:'delivery_rubric.md',version:'v1.0',
+   desc:'Compiles docs, generates client summary, packages deliverables, notifies client, archives to task log.', tools:['Notion','Slack','GitHub','Claude API'], buildNotes:['Week 5'], purpose:'Closes the client delivery loop.'},
+
+  {id:'MEDIA-RESEARCH',name:'Research Agent',icon:'🔍',pipeline:'media',pipelineColor:'var(--media)',status:'planned',gate:'AUTO',owner:'Media Lead',deps:['DOM-MEDIA'],rubric:'research_rubric.md',version:'v1.0',
+   desc:'Daily 07:00 WIB cron. Searches trending Web3/crypto/tech topics. Outputs ranked brief: topic, angle, sources, key facts. Also triggered on-demand.', tools:['Claude API + web search','n8n cron','Notion'], buildNotes:['Week 2 — build first','Immediate daily value for Infia team'], purpose:'Powers all media content with fresh daily intelligence.'},
+
+  {id:'MEDIA-NEWS',name:'News Article Agent',icon:'📰',pipeline:'media',pipelineColor:'var(--media)',status:'planned',gate:'ASYNC',owner:'Media Lead',deps:['MEDIA-RESEARCH'],rubric:'media_article_rubric.md',version:'v1.0',
+   desc:'Journalistic tone. 500–900 words. Reads Infia editorial voice from Memory Layer. SEO-aware headline. Separate system prompt from Social Caption Agent.', tools:['Claude API','Notion','Infia voice guide'], buildNotes:['Week 2 alongside Research Agent'], purpose:'Produces daily long-form content for Infia website.'},
+
+  {id:'MEDIA-SOCIAL',name:'Social Caption Agent',icon:'📱',pipeline:'media',pipelineColor:'var(--media)',status:'planned',gate:'ASYNC',owner:'Media Lead',deps:['MEDIA-RESEARCH'],rubric:'media_social_rubric.md',version:'v1.0',
+   desc:'Platform-native tone per channel. IG: visual-first, 150–220 chars. Twitter: sharp take, 280 chars max. Runs in parallel with News Article Agent.', tools:['Claude API','Notion','Platform style guides'], buildNotes:['Week 2 — same sprint as News Agent'], purpose:'Drives social reach from every research brief.'},
+
+  {id:'MEDIA-PAIDPR',name:'Paid PR Agent',icon:'💼',pipeline:'media',pipelineColor:'var(--media)',status:'planned',gate:'HUMAN',owner:'Media Lead',deps:['MEDIA-RESEARCH'],rubric:'paid_pr_rubric.md',version:'v1.0',
+   desc:'Conditional — only fires when paid_post:true. Brand-safe, compliant language. Adds disclosure labels. Separate Notion output from organic content. Sponsor tone > Infia tone.', tools:['Claude API','Notion','Sponsor guidelines'], buildNotes:['Week 6–7 — after organic pipeline proven'], purpose:'Handles commercial content without mixing with editorial.'},
+
+  {id:'MEDIA-PUBLISH',name:'Publishing Agent',icon:'📤',pipeline:'media',pipelineColor:'var(--media)',status:'planned',gate:'ASYNC',owner:'Media Lead',deps:['MEDIA-NEWS','MEDIA-SOCIAL','MEDIA-PAIDPR'],rubric:'—',version:'v1.0',
+   desc:'Posts approved content to Instagram and website at optimal times. Logs confirmation and engagement metrics back to Notion.', tools:['Instagram API','n8n','Website CMS','Buffer (fallback)'], buildNotes:['Week 4–5 — after writer agents stable'], purpose:'Completes media pipeline with distribution and measurement.'},
+
+  {id:'RND-IDEATION',name:'Ideation & Validation Agent',icon:'💡',pipeline:'rnd',pipelineColor:'var(--rnd)',status:'planned',gate:'HUMAN',owner:'R&D Lead',deps:['DOM-RND'],rubric:'feasibility_rubric.md',version:'v1.0',
+   desc:'Accepts raw 1-paragraph idea. Searches for comparable solutions. Outputs 1-page feasibility brief with explicit Go/No-go rec.', tools:['Claude API + web search','Notion'], buildNotes:['Week 5–6'], purpose:'Prevents wasted sprints on infeasible ideas.'},
+
+  {id:'RND-STAGEGATE',name:'Stage Gate Agent',icon:'📈',pipeline:'rnd',pipelineColor:'var(--rnd)',status:'planned',gate:'HUMAN',owner:'R&D Lead',deps:['SHARED-CODER','SHARED-PRD'],rubric:'stage_evidence.md',version:'v1.0',
+   desc:'Reads Notion Stage Evidence Table. Cannot advance stage without human checking boxes. POC→MVP: 3/3 evidence. MVP→Prod: 4/6. Weekly nudge if stalled.', tools:['Notion API','n8n','Claude API'], buildNotes:['Week 7–8'], purpose:'Enforces rigorous product stage transitions.'},
+];
+
+// render registry
+function renderRegistry(filter='all', search='') {
+  const tbody = document.getElementById('reg-tbody');
+  tbody.innerHTML = '';
+  const filtered = agents.filter(a => {
+    const matchFilter = filter==='all' || a.status===filter || a.pipeline===filter || (filter==='shared' && a.pipeline==='shared');
+    const matchSearch = !search || a.name.toLowerCase().includes(search.toLowerCase()) || a.id.toLowerCase().includes(search.toLowerCase());
+    return matchFilter && matchSearch;
+  });
+  filtered.forEach((a,i) => {
+    const statusClass = `status-${a.status}`;
+    const pipeColor = a.pipelineColor;
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-id', a.id);
+    tr.onclick = () => toggleRegDetail(a.id);
+    tr.innerHTML = `
+      <td><div class="r-name">${a.icon} ${a.name}</div><div class="r-id">${a.id}</div></td>
+      <td><span class="pipeline-tag" style="color:${pipeColor};border-color:${pipeColor};background:${pipeColor}18">${a.pipeline.toUpperCase()}</span></td>
+      <td><span class="status-badge ${statusClass}">${a.status.toUpperCase()}</span></td>
+      <td><span class="as-gate-badge ${a.gate==='AUTO'?'gate-auto':a.gate==='HUMAN'?'gate-human':a.gate==='ASYNC'?'gate-async':''}" style="font-size:8px;">${a.gate}</span></td>
+      <td style="font-size:10px;color:var(--muted);">${a.owner}</td>
+      <td><div class="dep-list">${a.deps.map(d=>`<span class="dep-tag">${d}</span>`).join('')||'<span class="dep-tag">none</span>'}</div></td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--async);">${a.rubric}</td>
+    `;
+    tbody.appendChild(tr);
+    // detail row
+    const dtr = document.createElement('tr');
+    dtr.className = 'reg-row-detail';
+    dtr.id = 'rrd-'+a.id;
+    dtr.innerHTML = `<td colspan="7">
+      <div class="rrd-grid">
+        <div class="rrd-col"><h6>Purpose</h6><ul><li>${a.purpose}</li></ul></div>
+        <div class="rrd-col"><h6>Description</h6><ul><li>${a.desc}</li></ul></div>
+        <div class="rrd-col"><h6>Tools</h6><ul>${a.tools.map(t=>`<li>${t}</li>`).join('')}</ul></div>
+        <div class="rrd-col"><h6>Build Notes</h6><ul>${a.buildNotes.map(n=>`<li>${n}</li>`).join('')}</ul></div>
+      </div>
+    </td>`;
+    tbody.appendChild(dtr);
+  });
+}
+
+function toggleRegDetail(id) {
+  const el = document.getElementById('rrd-'+id);
+  if (!el) return;
+  const isOpen = el.classList.contains('show');
+  document.querySelectorAll('.reg-row-detail').forEach(r => r.classList.remove('show'));
+  if (!isOpen) el.classList.add('show');
+}
+
+let currentRegFilter = 'all';
+function filterReg(f, btn) {
+  currentRegFilter = f;
+  document.querySelectorAll('.reg-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRegistry(f, document.querySelector('.reg-search').value);
+}
+function searchReg(val) { renderRegistry(currentRegFilter, val); }
+
+// ══ CHANGELOG DATA ══
+const changelog = [
+  {version:'v3.1',date:'2026-03-04',title:'Agent Governance Protocol Added',changes:[
+    {type:'gov',text:'Added Agent Registry — single source of truth for all 17 agents'},
+    {type:'gov',text:'Defined ADD, MODIFY, REMOVE, NEW PIPELINE protocols'},
+    {type:'gov',text:'Added 18-item registration checklist (6 before build, 6 during, 6 before live)'},
+    {type:'gov',text:'Changelog system added — immutable version history'},
+    {type:'add',text:'agent_registry added to Memory Layer as a required document'},
+  ]},
+  {version:'v3.0',date:'2026-03-04',title:'All 7 Structural Flaws Resolved',changes:[
+    {type:'fix',text:'QA Agent now loads rubric files from Memory Layer — no more undefined "good"'},
+    {type:'fix',text:'Memory Layer versioned with expiry dates and Memory Sync Agent added'},
+    {type:'fix',text:'Routing confirmation loop + dead-letter queue added to Orchestrator'},
+    {type:'fix',text:'All QA gates classified: AUTO / HUMAN / ASYNC — no more undesigned bottlenecks'},
+    {type:'fix',text:'Media Writer split into 3 parallel sub-agents: News, Social Caption, Paid PR'},
+    {type:'fix',text:'Max 2 retries per task — escalation protocol defined with RETRY/SKIP/MANUAL'},
+    {type:'fix',text:'Stage Gate Agent has hard evidence checklists: POC→MVP 3/3, MVP→Prod 4/6'},
+  ]},
+  {version:'v2.0',date:'2026-03-04',title:'Operational Pipelines Defined',changes:[
+    {type:'add',text:'Dev Studio pipeline: Intake → PRD → UI/UX → Coder → Delivery'},
+    {type:'add',text:'Media pipeline: Research → Writer(s) → QA → Publish'},
+    {type:'add',text:'R&D pipeline: Ideation → PRD → UI/UX → Coder → Stage Gate'},
+    {type:'add',text:'QA gates added at every stage handoff'},
+    {type:'modify',text:'Video/TikTok removed from Media scope (out of scope for now)'},
+    {type:'add',text:'Paid PR Agent added as conditional branch in Media pipeline'},
+  ]},
+  {version:'v1.0',date:'2026-03-04',title:'Initial Blueprint — EPIK AI Agent Hierarchy',changes:[
+    {type:'add',text:'5-tier hierarchy defined: Orchestrator, Domain Heads, Product Agents, Workers, Foundation'},
+    {type:'add',text:'Memory Layer and Trigger Layer defined as foundation'},
+    {type:'add',text:'Dev Studio, Media, R&D identified as three core pipelines'},
+  ]},
+];
+
+function renderChangelog() {
+  const tl = document.getElementById('cl-timeline');
+  tl.innerHTML = '';
+  const typeMap = {add:'cl-add',fix:'cl-fix',remove:'cl-remove',modify:'cl-modify',gov:'cl-gov'};
+  const typeLabel = {add:'ADD',fix:'FIX',remove:'REMOVE',modify:'MODIFY',gov:'GOV'};
+  const colors = {add:'var(--orch)',fix:'var(--async)',remove:'var(--qa)',modify:'var(--reg)',gov:'var(--gov)'};
+  changelog.forEach(entry => {
+    const div = document.createElement('div');
+    div.className = 'cl-entry';
+    div.innerHTML = `
+      <div class="cl-dot" style="background:var(--orch);box-shadow:0 0 8px rgba(0,255,178,0.4);"></div>
+      <div class="cl-version">${entry.version}</div>
+      <div class="cl-date">${entry.date}</div>
+      <div class="cl-entry-title">${entry.title}</div>
+      <div class="cl-changes">
+        ${entry.changes.map(c=>`
+          <div class="cl-change">
+            <span class="cl-change-badge ${typeMap[c.type]}">${typeLabel[c.type]}</span>
+            <span>${c.text}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    tl.appendChild(div);
+  });
+}
+
+function addChangelogEntry() {
+  const v = document.getElementById('cl-version').value.trim();
+  const a = document.getElementById('cl-agent').value.trim();
+  const t = document.getElementById('cl-type').value;
+  const d = document.getElementById('cl-desc').value.trim();
+  if (!v||!a||!d) { alert('Please fill in all fields'); return; }
+  const today = new Date().toISOString().split('T')[0];
+  changelog.unshift({version:v,date:today,title:`${a}`,changes:[{type:t,text:d}]});
+  renderChangelog();
+  ['cl-version','cl-agent','cl-desc'].forEach(id => document.getElementById(id).value='');
+}
+
+// ══ BLUEPRINT DETAIL DATA ══
+const bpDetails = {
+  orchestrator:{title:'🧠 EPIK Brain — Orchestrator',sub:'Tier 0 · All pipelines route through here',color:'var(--orch)',cols:[{title:'Responsibilities',items:['Receives goals from Akhri via Slack or Notion','Routes tasks to domain leads with task_id','Waits for routing confirmation within 30 minutes','Re-routes or escalates on timeout','Maintains Dead-Letter Queue','Weekly status digest to Akhri']},{title:'Routing Confirmation Loop',items:['Dispatch → domain lead confirms in 5min','Task marked CONFIRMED in task log','30min no confirm → re-route attempt','2nd fail → DEAD_LETTER + Slack alert','Human re-routes from DLQ via Slack reply']},{title:'Build',items:['Week 1 — very first build','Claude API + EPIK context system prompt','n8n Slack webhook → EPIK Brain → routing']}],rubric:null},
+  'dev-lead':{title:'🏗️ Dev Studio Lead',sub:'Domain Head · Tier 1 · Client delivery',color:'var(--dev)',cols:[{title:'Responsibilities',items:['Receives brief, confirms routing to Orchestrator in 5min','Manages full Dev Studio pipeline','Surfaces blockers to EPIK Brain','Reports status on each stage completion']},{title:'Gate Authority',items:['QA 1 Scope: AUTO','QA 2 PRD: HUMAN — client contract risk','QA 3 UI/UX: HUMAN — before dev cost','QA 4 Code: AUTO if tests pass','QA 5 Delivery: HUMAN — client-facing']},{title:'Build',items:['Week 3 — after EPIK Brain stable','System prompt includes all Dev Studio context']}],rubric:null},
+  'media-lead':{title:'📡 Media Lead',sub:'Domain Head · Tier 1 · Infia Techno',color:'var(--media)',cols:[{title:'Responsibilities',items:['Human sets creative direction daily','Routes: trend vs brief vs paid to sub-agents','Manages posting schedule via n8n','Ensures Infia brand consistency','Weekly performance report to EPIK Brain']},{title:'Gate Authority',items:['QA 1 Research: AUTO','QA 2 Content: ASYNC — 2hr rollback','Paid PR: HUMAN always — compliance risk','QA 3 Publish: AUTO after content approved']},{title:'Build',items:['Week 2 — highest immediate ROI','Infia brand voice doc is key dependency']}],rubric:null},
+  'rnd-lead':{title:'🔬 R&D Lead',sub:'Domain Head · Tier 1 · Internal products',color:'var(--rnd)',cols:[{title:'Responsibilities',items:['Owns all EPIK internal product development','Prioritizes product R&D resources','Shares PRD, UI/UX, Coder with Dev Studio','Stage gates every product with hard evidence']},{title:'Stage Gate Rules',items:['POC→MVP: 3/3 evidence required','MVP→Prod: 4/6 evidence required','Human must check Notion boxes — no self-advance','30+ day stall triggers weekly nudge']},{title:'Build',items:['Week 3–4 alongside Dev Studio','Ideation Agent unique to this pipeline']}],rubric:null},
+  'mem-sync':{title:'🗄️ Memory Sync Agent',sub:'Weekly audit · Context versioning',color:'var(--mem)',cols:[{title:'How It Works',items:['Runs every Monday 09:00 WIB','Checks last_updated on every Memory doc','Flags docs older than 30 days','Sends Slack digest to Akhri','Version increments after human review','Agents re-load if version changed']},{title:'Document Schema',items:['doc_id · category · version','last_updated: ISO timestamp','reviewed_by: human name','expires_after: 30d / 90d / never','used_by: which agents load this']},{title:'Build',items:['Week 6–7','Simple n8n Notion API timestamp check','Slack message with Notion links to start']}],rubric:null},
+  intake:{title:'📥 Intake & Scoping Agent',sub:'Dev Studio · Brief → Structured Scope Doc',color:'var(--dev)',cols:[{title:'What It Does',items:['Parses brief from any format','Asks max 5 clarifying questions via Slack','Extracts: type, stack, timeline, budget, criteria','Outputs standardized scope doc to Notion','Auto-approve if rubric score ≥ 80%']},{title:'QA Gate 1 — AUTO',items:['Loads scope_rubric.md from Memory Layer','Threshold: 80% → auto-pass','<80% → retry with gap explanation','Max 2 retries then escalate to human']},{title:'Build',items:['Week 3','Structured JSON output format','n8n routes to PRD Agent on auto-pass']}],rubric:'SCOPE RUBRIC\n[ ] Project type identified\n[ ] Primary client/stakeholder named\n[ ] Core features present (rough ok)\n[ ] Timeline or deadline mentioned\n[ ] Tech stack noted or explicitly unknown\n[ ] Success criteria defined\n[ ] Out-of-scope stated\n[ ] Budget range noted'},
+  prd:{title:'📋 PRD Agent',sub:'Shared · Dev Studio + R&D · Stage-aware',color:'var(--async)',cols:[{title:'What It Does',items:['POC: 1 core feature, hardcoded ok','MVP: full feature set, no optimization','Production: full spec + non-functionals','Iterates with UI/UX Agent until both pass QA','Stage mode passed as context parameter']},{title:'QA Gate 2 — HUMAN',items:['Loads prd_rubric.md from Memory Layer','Human-in-loop: client contract risk','Iterative loop with UI/UX Agent','Max 2 retries before escalation']},{title:'Build',items:['Week 3 — one build covers Dev + R&D','Stage-mode parameter differentiates context']}],rubric:'PRD RUBRIC\n[ ] All user roles defined (max 3 for POC)\n[ ] Acceptance criteria per feature, testable\n[ ] Tech stack specified or deferred\n[ ] No ambiguous language (no "should/might")\n[ ] Scope boundary explicit (what is OUT)\n[ ] Timeline estimate present\n[ ] Non-functional requirement noted\n[ ] Stage-appropriate depth'},
+  uiux:{title:'🎨 UI/UX Agent',sub:'Shared · Dev Studio + R&D · Design spec',color:'var(--async)',cols:[{title:'What It Does',items:['Reads approved PRD','POC: text wireframes only','MVP: full component spec, responsive','Production: Figma-ready spec','Flags PRD gaps back to PRD Agent (loop)']},{title:'QA Gate 3 — HUMAN',items:['Loads uiux_rubric.md','All PRD screens must be covered','Loops with PRD Agent until both pass','Max 2 retries before escalation']},{title:'Build',items:['Week 4–5','Text output first, Figma API later','Humans handle Figma initially']}],rubric:null},
+  coder:{title:'💻 Coder Agent',sub:'Shared · Available NOW via Claude Code',color:'var(--async)',cols:[{title:'What It Does',items:['Reads approved PRD + design spec','Generates GitHub Issues as task breakdown','Writes boilerplate, smart contracts, stubs','POC: speed over quality','Production: full test coverage, audit-ready']},{title:'QA Gate 4 — AUTO',items:['Loads code_rubric.md','Auto-approve if linting + tests pass','Checks acceptance criteria from PRD','Max 2 retries before escalation']},{title:'Build',items:['Available NOW — Claude Code CLI','Add CLAUDE.md to all repos this week','Easiest agent to activate']}],rubric:'CODE RUBRIC\n[ ] Linting passes\n[ ] Tests pass (POC=0%, MVP=60%, Prod=80%)\n[ ] All acceptance criteria implemented\n[ ] No hardcoded secrets\n[ ] README updated\n[ ] Web3: no reentrancy vulnerabilities\n[ ] Error handling on all API calls\n[ ] PR description matches work'},
+  delivery:{title:'🚀 Delivery Agent',sub:'Dev Studio · Client handoff · Exit point',color:'var(--dev)',cols:[{title:'What It Does',items:['Compiles README, deploy guide, changelog','Generates non-technical client summary','Packages to Notion client space','Notifies client via Slack / email','Archives to Memory Layer task log']},{title:'QA Gate 5 — HUMAN',items:['Docs complete, no open issues','Client summary accurate','Human must approve before any client contact','Max 2 retries before escalation']},{title:'Build',items:['Week 5','Claude prompt + Notion page template','n8n Slack/email notification']}],rubric:null},
+  research:{title:'🔍 Research Agent',sub:'Media · Daily 07:00 WIB · Ranked brief',color:'var(--media)',cols:[{title:'What It Does',items:['Scheduled daily at 07:00 WIB','Also triggered on-demand from brief','Searches Web3, crypto, tech + Indonesia angle','Outputs: topic, angle, sources, key facts','Flags paid_post:true if placement brief']},{title:'QA Gate 1 — AUTO',items:['Loads research_rubric.md','Min 2 credible sources required','Angle must be relevant to Infia audience','Auto-approve ≥ 80%, retry below']},{title:'Build',items:['Week 2 — build this first','Claude API with web search','n8n cron = 5 lines of workflow']}],rubric:null},
+  'news-writer':{title:'📰 News Article Agent',sub:'Media · Separate sub-agent · Journalistic voice',color:'var(--media)',cols:[{title:'What It Does',items:['Reads research brief','Applies Infia editorial voice from Memory Layer','Structure: lede → context → insight → conclusion','500–900 words, SEO-aware','Runs parallel with Social Caption Agent']},{title:'QA Gate 2 — ASYNC',items:['Loads media_article_rubric.md','2-hour rollback window','Team notified, pipeline continues','If flagged within 2hr: pipeline pauses']},{title:'Build',items:['Week 2','Separate system prompt from Social Agent','Infia voice doc must exist first']}],rubric:'ARTICLE RUBRIC\n[ ] Lede answers who/what/when/where\n[ ] All facts have source in research brief\n[ ] Tone matches Infia editorial voice\n[ ] Headline accurate, not clickbait\n[ ] Word count 500–900\n[ ] No promo language (unless paid)\n[ ] Conclusion present\n[ ] SEO: keyword in headline + first para'},
+  'social-writer':{title:'📱 Social Caption Agent',sub:'Media · Platform-native · IG + Twitter',color:'var(--media)',cols:[{title:'What It Does',items:['Same research brief input as News Agent','Separate system prompt per platform','IG: visual-first, 150–220 chars, hashtags','Twitter: sharp take, max 280 chars','Runs in parallel — separate Notion outputs']},{title:'QA Gate 2 — ASYNC',items:['Loads media_social_rubric.md','Common fail: corporate tone bleeding from article','2hr rollback same as article']},{title:'Build',items:['Week 2 — same sprint as News Agent','Load platform style guides to Memory Layer first']}],rubric:null},
+  'paid-pr':{title:'💼 Paid PR Agent',sub:'Media · Conditional · paid_post:true only',color:'var(--media)',cols:[{title:'What It Does',items:['Only fires when paid_post:true in brief','Loads sponsor guidelines from Memory Layer','Brand-safe, disclosure-compliant language','Adds #ad/#sponsored labels','Separate Notion output — never mixed with organic']},{title:'QA Gate — HUMAN',items:['Loads paid_pr_rubric.md','Always human-in-loop — compliance risk','No async option for paid content','Akhri or Media Lead must approve']},{title:'Build',items:['Week 6–7 — after organic proven','Create sponsor_guidelines/ on first client']}],rubric:null},
+  publisher:{title:'📤 Publishing Agent',sub:'Media · Instagram + Website · Scheduler',color:'var(--media)',cols:[{title:'What It Does',items:['Receives content after all QA gates pass','Schedules at optimal engagement times','Posts to Instagram + website','Logs confirmation + URL to Notion','Pulls 24h metrics, reports to Media Lead']},{title:'Tools',items:['Instagram Graph API','Website CMS API or webhook','n8n scheduler','Buffer/Later as fallback']},{title:'Build',items:['Week 4–5 — after writers stable','Start with n8n → Buffer','Migrate to direct API when volume justifies']}],rubric:null},
+  ideation:{title:'💡 Ideation & Validation Agent',sub:'R&D · Feasibility brief · Go/No-go',color:'var(--rnd)',cols:[{title:'What It Does',items:['Accepts raw 1-paragraph idea','Searches for comparable existing solutions','Identifies: gap, complexity, timeline estimate','Flags showstoppers: regulatory/technical/resource','Outputs 1-page brief with explicit Go/No-go']},{title:'QA Gate 1 — HUMAN',items:['Always human — resource commitment','No retry: human approves or rejects with reason','Rejection archived in Notion, not discarded']},{title:'Build',items:['Week 5–6','Claude API + web search','High value: prevents wasted sprints']}],rubric:null},
+  stagegate:{title:'📈 Stage Gate Agent',sub:'R&D · Hard evidence checklists',color:'var(--rnd)',cols:[{title:'Stage Transitions',items:['POC→MVP: 3/3 required','  1. Core assumption tested with real user','  2. Hardest integration works','  3. Go decision by Akhri in Notion','MVP→Prod: 4/6 required from 6 options']},{title:'How It Works',items:['Reads Notion Stage Evidence Table','Cannot advance without human checking boxes','Weekly nudge if stalled 30+ days','Provides full product progression audit trail']},{title:'Build',items:['Week 7–8','Notion DB with evidence table per product','n8n reads checkboxes weekly']}],rubric:null},
 };
 
-let currentDetail = null;
-
-function showDetail(id) {
-  const d = details[id];
+let currentBpDetail = null;
+function showBlueprintDetail(id) {
+  const d = bpDetails[id];
   if (!d) return;
-
-  if (currentDetail === id) { closeDetail(); return; }
-  currentDetail = id;
-
-  document.getElementById('dp-title').textContent = d.title;
-  document.getElementById('dp-sub').textContent = d.sub;
-
-  const grid = document.getElementById('dp-grid');
-  grid.style.setProperty('--dp-color', d.color);
-  grid.innerHTML = d.cols.map(col => `
-    <div class="dp-col">
-      <h5>${col.title}</h5>
-      <ul>${col.items.map(i => `<li>${i}</li>`).join('')}</ul>
-    </div>
-  `).join('');
-
-  const rubricEl = document.getElementById('dp-rubric');
-  if (d.rubric) {
-    rubricEl.style.display = 'block';
-    rubricEl.innerHTML = `<div class="dp-rubric-title">// RUBRIC FILE PREVIEW</div>${d.rubric}`;
-  } else {
-    rubricEl.style.display = 'none';
-  }
-
-  document.querySelectorAll('.agent-step, .domain-node, .orch-node').forEach(el => el.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-
-  const panel = document.getElementById('detail-panel');
+  if (currentBpDetail===id){ closeBlueprintDetail(); return; }
+  currentBpDetail=id;
+  document.getElementById('dp-title').textContent=d.title;
+  document.getElementById('dp-sub').textContent=d.sub;
+  const grid=document.getElementById('dp-grid');
+  grid.style.setProperty('--dp-color',d.color);
+  grid.innerHTML=d.cols.map(c=>`<div class="dp-col"><h5>${c.title}</h5><ul>${c.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>`).join('');
+  const rub=document.getElementById('dp-rubric');
+  if(d.rubric){rub.style.display='block';rub.innerHTML=`<div class="dp-rubric-title">// RUBRIC FILE PREVIEW</div>${d.rubric}`;}
+  else rub.style.display='none';
+  document.querySelectorAll('.agent-step,.domain-node,.orch-node').forEach(el=>el.classList.remove('active'));
+  if(event&&event.currentTarget) event.currentTarget.classList.add('active');
+  const panel=document.getElementById('bp-detail-panel');
   panel.classList.add('show');
-  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+  setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+}
+function closeBlueprintDetail(){
+  document.getElementById('bp-detail-panel').classList.remove('show');
+  document.querySelectorAll('.agent-step,.domain-node,.orch-node').forEach(el=>el.classList.remove('active'));
+  currentBpDetail=null;
 }
 
-function closeDetail() {
-  document.getElementById('detail-panel').classList.remove('show');
-  document.querySelectorAll('.agent-step, .domain-node, .orch-node').forEach(el => el.classList.remove('active'));
-  currentDetail = null;
+// ══ GOVERNANCE ══
+function toggleProtocol(id){
+  const body=document.getElementById('body-'+id);
+  const tog=document.getElementById('toggle-'+id);
+  const open=body.classList.contains('open');
+  body.classList.toggle('open',!open);
+  tog.textContent=open?'▼':'▲';
 }
+function toggleCheck(el){
+  el.classList.toggle('checked');
+  el.querySelector('.cc-box').classList.toggle('checked');
+}
+
+// ══ VIEW SWITCHING ══
+function switchView(name, tabEl) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  if(tabEl) tabEl.classList.add('active');
+  else {
+    const map={'blueprint':0,'registry':1,'governance':2,'changelog':3};
+    document.querySelectorAll('.nav-tab')[map[name]]?.classList.add('active');
+  }
+}
+
+// ══ INIT ══
+renderRegistry();
+renderChangelog();
 </script>
 </body>
 </html>
