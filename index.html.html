@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPIK AI System — Full Blueprint</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Oxanium:wght@300;400;600;700;800&display=swap');
+
+:root {
+  --bg:       #04060A;
+  --s1:       #080C14;
+  --s2:       #0C1220;
+  --s3:       #111B2E;
+  --border:   #182436;
+  --border2:  #223350;
+  --text:     #C8D8EC;
+  --muted:    #3D5470;
+  --dim:      #1A2840;
+
+  --orch:   #00FFB2;
+  --dev:    #4D9EFF;
+  --media:  #FF8C42;
+  --rnd:    #3DFFA0;
+  --qa:     #FF3D6B;
+  --mem:    #FFD166;
+  --human:  #C084FC;
+  --auto:   #00FFB2;
+  --async:  #38BDF8;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Oxanium', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* scanline overlay */
+body::before {
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+}
+
+/* grid */
+body::after {
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(0,255,178,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,178,0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.canvas { position:relative; z-index:1; }
+
+/* ── PAGE HEADER ── */
+.page-header {
+  padding: 48px 40px 36px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-end; justify-content: space-between;
+  flex-wrap: wrap; gap: 20px;
+}
+.ph-left {}
+.ph-eyebrow {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px; letter-spacing: 4px; color: var(--orch);
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.ph-title {
+  font-size: clamp(22px, 3.5vw, 38px);
+  font-weight: 800; line-height: 1.1; color: var(--text);
+}
+.ph-title span { color: var(--orch); }
+.ph-right {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+}
+.legend {
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end;
+}
+.leg-item {
+  display: flex; align-items: center; gap: 6px;
+  font-family: 'Share Tech Mono', monospace; font-size: 9px;
+  color: var(--muted); letter-spacing: 1px;
+}
+.leg-dot { width:8px;height:8px;border-radius:2px;flex-shrink:0; }
+.leg-line { width:20px;height:2px;flex-shrink:0; }
+
+/* ── MAIN LAYOUT ── */
+.main {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  grid-template-rows: auto auto auto;
+  gap: 0;
+}
+
+/* ── LAYER LABELS (left column) ── */
+.layer-labels { grid-column: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+.layer-label {
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: 0 20px; border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.layer-label::after {
+  content: '';
+  position: absolute; right: -5px; top: 50%; transform: translateY(-50%);
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--ll-color, var(--border2));
+  border: 1px solid var(--bg);
+  z-index: 2;
+}
+.ll-text {
+  text-align: right;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ll-color, var(--muted));
+  line-height: 1.5;
+}
+
+/* ── PIPELINE CONTENT (right column) ── */
+.pipeline-col { grid-column: 2; display: flex; flex-direction: column; }
+
+/* ── ROW ── */
+.bp-row {
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex; align-items: center; gap: 12px;
+  min-height: 80px;
+  position: relative;
+}
+
+/* ── ORCHESTRATOR ROW ── */
+.orch-row { background: rgba(0,255,178,0.03); }
+
+.orch-node {
+  background: var(--s2);
+  border: 1px solid var(--orch);
+  border-radius: 10px;
+  padding: 14px 20px;
+  flex: 1; max-width: 500px; margin: 0 auto;
+  display: flex; align-items: center; gap: 14px;
+  position: relative; overflow: hidden;
+  cursor: pointer; transition: all 0.2s;
+  box-shadow: 0 0 20px rgba(0,255,178,0.08);
+}
+.orch-node:hover { box-shadow: 0 0 32px rgba(0,255,178,0.18); }
+.orch-node::before {
+  content:''; position:absolute; inset:0;
+  background: linear-gradient(135deg, rgba(0,255,178,0.06) 0%, transparent 60%);
+}
+.on-icon { font-size: 26px; }
+.on-name { font-size: 15px; font-weight: 700; color: var(--orch); }
+.on-desc { font-size: 10px; color: var(--muted); margin-top: 2px; font-family:'Share Tech Mono',monospace; letter-spacing:1px; }
+
+.routing-badges { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+.rbadge {
+  font-family:'Share Tech Mono',monospace; font-size:8px;
+  padding:2px 7px; border-radius:3px; letter-spacing:1px;
+  background:rgba(0,255,178,0.08); border:1px solid rgba(0,255,178,0.2); color:var(--orch);
+}
+
+/* ── DOMAIN ROW ── */
+.domain-row { gap: 10px; flex-wrap: wrap; }
+
+.domain-node {
+  flex: 1; min-width: 140px;
+  background: var(--s1); border: 1px solid var(--border);
+  border-radius: 10px; padding: 14px 16px;
+  position: relative; cursor: pointer; transition: all 0.2s;
+  overflow: hidden;
+}
+.domain-node::before {
+  content:''; position:absolute; top:0;left:0;right:0; height:2px;
+  background: var(--dn-color, var(--border2));
+}
+.domain-node:hover { border-color: var(--dn-color, var(--border2)); transform: translateY(-2px); }
+.dn-label {
+  font-family:'Share Tech Mono',monospace; font-size:8px;
+  letter-spacing:2px; text-transform:uppercase; color:var(--dn-color);
+  margin-bottom:5px;
+}
+.dn-name { font-size:13px; font-weight:700; margin-bottom:3px; }
+.dn-sub { font-size:10px; color:var(--muted); line-height:1.5; }
+
+/* ── PIPELINE ROWS ── */
+.pipelines-area {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+}
+.pipe-col {
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+}
+.pipe-col:last-child { border-right: none; }
+.pipe-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+  background: var(--s1);
+}
+.pipe-header-dot {
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink {
+  0%,100%{ opacity:1; } 50%{ opacity:0.4; }
+}
+.pipe-header-name {
+  font-family:'Share Tech Mono',monospace; font-size:9px;
+  letter-spacing:3px; text-transform:uppercase;
+}
+
+/* ── AGENT STEP ── */
+.agent-step {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background 0.15s;
+  position: relative;
+}
+.agent-step:last-child { border-bottom: none; }
+.agent-step:hover { background: var(--s2); }
+.agent-step.active { background: var(--s3); }
+
+.as-connector {
+  position: absolute; left: 22px; top: -8px;
+  width: 1px; height: 8px;
+  background: var(--border2);
+}
+.as-connector::after {
+  content:''; position:absolute; bottom:-4px; left:-3px;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 5px solid var(--border2);
+}
+
+.as-top { display:flex; align-items:center; gap:8px; }
+.as-icon { font-size:14px; flex-shrink:0; }
+.as-name { font-size:11px; font-weight:700; }
+.as-role {
+  font-family:'Share Tech Mono',monospace; font-size:8px;
+  color:var(--muted); letter-spacing:1px; margin-top:1px;
+}
+.as-gate-badge {
+  margin-left:auto; flex-shrink:0;
+  font-family:'Share Tech Mono',monospace; font-size:8px;
+  padding:2px 6px; border-radius:3px; letter-spacing:1px;
+}
+.gate-auto { background:rgba(0,255,178,0.1); border:1px solid rgba(0,255,178,0.25); color:var(--auto); }
+.gate-human { background:rgba(192,132,252,0.1); border:1px solid rgba(192,132,252,0.25); color:var(--human); }
+.gate-async { background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.25); color:var(--async); }
+.gate-none { display:none; }
+
+/* ── QA GATE STEP ── */
+.qa-step {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-start; gap: 8px;
+  background: rgba(255,61,107,0.03);
+}
+.qa-step-icon { font-size:12px; flex-shrink:0; margin-top:1px; }
+.qa-step-text {
+  font-family:'Share Tech Mono',monospace; font-size:8px;
+  color:var(--qa); letter-spacing:1px; line-height:1.6;
+}
+.qa-retry {
+  font-family:'Share Tech Mono',monospace; font-size:7px;
+  color:var(--muted); margin-top:2px; letter-spacing:1px;
+}
+
+/* ── LOOP INDICATOR ── */
+.loop-step {
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(77,158,255,0.03);
+}
+.loop-step-text {
+  font-family:'Share Tech Mono',monospace; font-size:8px;
+  color:rgba(77,158,255,0.6); letter-spacing:1px;
+}
+
+/* ── HUMAN INPUT ── */
+.human-step {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(192,132,252,0.03);
+}
+.human-step-text {
+  font-family:'Share Tech Mono',monospace; font-size:8px;
+  color:var(--human); letter-spacing:1px; line-height:1.5;
+}
+
+/* ── DETAIL PANEL ── */
+.detail-panel {
+  grid-column: 1 / -1;
+  background: var(--s2);
+  border-top: 1px solid var(--border2);
+  border-bottom: 1px solid var(--border2);
+  padding: 28px 32px;
+  display: none; animation: slidedown 0.2s ease;
+}
+.detail-panel.show { display: block; }
+@keyframes slidedown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+
+.dp-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px; }
+.dp-title { font-size:16px; font-weight:700; }
+.dp-sub { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:2px; margin-top:3px; text-transform:uppercase; }
+.dp-close { background:none; border:1px solid var(--border2); color:var(--muted); cursor:pointer; padding:4px 10px; border-radius:4px; font-family:'Share Tech Mono',monospace; font-size:10px; }
+.dp-close:hover { border-color:var(--qa); color:var(--qa); }
+
+.dp-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+@media(max-width:800px){ .dp-grid{grid-template-columns:1fr 1fr;} }
+@media(max-width:500px){ .dp-grid{grid-template-columns:1fr;} }
+
+.dp-col h5 {
+  font-family:'Share Tech Mono',monospace; font-size:8px;
+  letter-spacing:3px; text-transform:uppercase;
+  color: var(--dp-color, var(--orch));
+  margin-bottom:10px; padding-bottom:6px;
+  border-bottom: 1px solid var(--border);
+}
+.dp-col ul { list-style:none; display:flex; flex-direction:column; gap:5px; }
+.dp-col ul li {
+  font-size:11px; color:var(--muted); padding-left:14px;
+  position:relative; line-height:1.6;
+}
+.dp-col ul li::before { content:'›'; position:absolute; left:0; color:var(--dp-color,var(--orch)); }
+.dp-col ul li strong { color:var(--text); }
+
+.dp-rubric {
+  margin-top:16px; background:var(--bg); border:1px solid var(--border);
+  border-radius:6px; padding:12px 14px;
+  font-family:'Share Tech Mono',monospace; font-size:9px;
+  color:var(--async); line-height:1.9;
+}
+.dp-rubric-title { color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; font-size:8px; }
+
+/* ── FOUNDATION ROW ── */
+.foundation-row {
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+}
+.found-cell {
+  padding: 16px 18px;
+  border-right: 1px solid var(--border);
+}
+.found-cell:last-child { border-right:none; }
+.found-title {
+  font-family:'Share Tech Mono',monospace; font-size:9px;
+  letter-spacing:2px; text-transform:uppercase;
+  margin-bottom:8px;
+}
+.found-items { display:flex; flex-direction:column; gap:4px; }
+.found-item {
+  font-family:'Share Tech Mono',monospace; font-size:9px;
+  color:var(--muted); padding:4px 8px; border-radius:3px;
+  background:var(--s1); border:1px solid var(--border);
+  display:flex; align-items:center; gap:6px;
+}
+.found-dot { width:5px;height:5px;border-radius:50%;flex-shrink:0; }
+
+/* ── ERROR STATE ROW ── */
+.error-row {
+  padding: 12px 24px;
+  display:flex; align-items:center; gap:16px;
+  background: rgba(255,61,107,0.03);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.error-flow {
+  display:flex; align-items:center; gap:6px;
+  font-family:'Share Tech Mono',monospace; font-size:9px;
+  flex-wrap: wrap;
+}
+.ef-box {
+  padding: 4px 10px; border-radius:4px;
+  border:1px solid; font-size:8px; white-space:nowrap;
+}
+.ef-arrow { color:var(--muted); font-size:12px; }
+.ef-label {
+  font-family:'Share Tech Mono',monospace; font-size:8px;
+  color:var(--muted); letter-spacing:2px; margin-right:6px;
+}
+
+/* ── MEMORY STRIP ── */
+.memory-strip {
+  padding: 14px 24px;
+  display:flex; align-items:center; gap:10px;
+  background: rgba(255,209,102,0.03);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.ms-label {
+  font-family:'Share Tech Mono',monospace; font-size:8px;
+  color:var(--mem); letter-spacing:2px; text-transform:uppercase;
+  white-space:nowrap;
+}
+.ms-docs { display:flex; gap:6px; flex-wrap:wrap; }
+.ms-doc {
+  font-family:'Share Tech Mono',monospace; font-size:8px;
+  padding:2px 8px; border-radius:3px;
+  background:rgba(255,209,102,0.06); border:1px solid rgba(255,209,102,0.18);
+  color:var(--mem);
+}
+.ms-doc.stale {
+  background:rgba(255,61,107,0.06); border:1px solid rgba(255,61,107,0.2); color:var(--qa);
+}
+
+/* ── TASK STATES ── */
+.task-states-row {
+  padding: 12px 24px;
+  display:flex; gap:8px; flex-wrap:wrap;
+  align-items:center;
+  border-bottom: 1px solid var(--border);
+}
+.ts-label {
+  font-family:'Share Tech Mono',monospace; font-size:8px;
+  color:var(--muted); letter-spacing:2px; margin-right:4px;
+  white-space:nowrap;
+}
+.ts-badge {
+  font-family:'Share Tech Mono',monospace; font-size:8px;
+  padding:3px 9px; border-radius:3px; white-space:nowrap;
+}
+
+/* responsive */
+@media(max-width:900px){
+  .main{ grid-template-columns:1fr; }
+  .layer-labels{ display:none; }
+  .pipelines-area{ grid-template-columns:1fr; }
+  .pipe-col{ border-right:none; border-bottom:1px solid var(--border); }
+  .foundation-row{ grid-template-columns:1fr; }
+  .found-cell{ border-right:none; border-bottom:1px solid var(--border); }
+}
+@media(max-width:600px){
+  .page-header{ padding:28px 16px 20px; }
+  .bp-row{ padding:12px 14px; }
+  .domain-row{ flex-direction:column; }
+}
+</style>
+</head>
+<body>
+<div class="canvas">
+
+<!-- ══════════ PAGE HEADER ══════════ -->
+<div class="page-header">
+  <div class="ph-left">
+    <div class="ph-eyebrow">// EPIK Holding · AI Agent System · v3.0 — Hardened</div>
+    <div class="ph-title">Full System <span>Blueprint</span></div>
+  </div>
+  <div class="ph-right">
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--orch)"></div>Orchestrator</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--dev)"></div>Dev Studio</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--media)"></div>Media</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--rnd)"></div>R&D</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--qa)"></div>QA Gate</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--mem)"></div>Memory</div>
+    </div>
+    <div class="legend" style="margin-top:4px;">
+      <div class="leg-item"><div class="leg-line" style="background:var(--auto)"></div>AUTO gate</div>
+      <div class="leg-item"><div class="leg-line" style="background:var(--human)"></div>HUMAN gate</div>
+      <div class="leg-item"><div class="leg-line" style="background:var(--async)"></div>ASYNC gate</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MAIN GRID ══════════ -->
+<div class="main">
+
+  <!-- LAYER LABELS -->
+  <div class="layer-labels">
+    <div class="layer-label" style="--ll-color:var(--orch); height:90px;"><div class="ll-text">TIER 0<br>Orchestrator</div></div>
+    <div class="layer-label" style="--ll-color:var(--border2); height:72px;"><div class="ll-text">TIER 1<br>Domain Leads</div></div>
+    <div class="layer-label" style="--ll-color:var(--dev); flex:1; min-height:400px;"><div class="ll-text">TIER 2<br>Pipelines</div></div>
+    <div class="layer-label" style="--ll-color:var(--qa); height:46px;"><div class="ll-text">Error<br>Protocol</div></div>
+    <div class="layer-label" style="--ll-color:var(--mem); height:46px;"><div class="ll-text">Memory<br>Sync</div></div>
+    <div class="layer-label" style="--ll-color:var(--border2); height:52px;"><div class="ll-text">Task<br>States</div></div>
+    <div class="layer-label" style="--ll-color:var(--mem); height:160px;"><div class="ll-text">Foundation<br>Layer</div></div>
+  </div>
+
+  <!-- PIPELINE CONTENT -->
+  <div class="pipeline-col">
+
+    <!-- ── ORCHESTRATOR ── -->
+    <div class="bp-row orch-row" style="justify-content:center;">
+      <div class="orch-node" onclick="showDetail('orchestrator')">
+        <div class="on-icon">🧠</div>
+        <div style="flex:1;">
+          <div class="on-name">EPIK Brain — Orchestrator</div>
+          <div class="on-desc">Tier 0 · Routes all tasks · Maintains routing confirmation loop · Dead-letter queue on failure</div>
+          <div class="routing-badges">
+            <span class="rbadge">→ Dev Studio Lead</span>
+            <span class="rbadge">→ Media Lead</span>
+            <span class="rbadge">→ R&D Lead</span>
+            <span class="rbadge">30min timeout → escalate</span>
+            <span class="rbadge">2x miss → DLQ</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DOMAIN LEADS ── -->
+    <div class="bp-row domain-row">
+      <div class="domain-node" style="--dn-color:var(--dev);" onclick="showDetail('dev-lead')">
+        <div class="dn-label">Dev Studio Lead</div>
+        <div class="dn-name">🏗️ Client Delivery</div>
+        <div class="dn-sub">Brief → Ship. Confirms routing to Orchestrator within 5min.</div>
+      </div>
+      <div class="domain-node" style="--dn-color:var(--media);" onclick="showDetail('media-lead')">
+        <div class="dn-label">Media Lead</div>
+        <div class="dn-name">📡 Infia Techno</div>
+        <div class="dn-sub">Human sets direction. Daily pipeline. 1M followers.</div>
+      </div>
+      <div class="domain-node" style="--dn-color:var(--rnd);" onclick="showDetail('rnd-lead')">
+        <div class="dn-label">R&D Lead</div>
+        <div class="dn-name">🔬 Products</div>
+        <div class="dn-sub">POC→MVP→Prod. Shares agents with Dev Studio.</div>
+      </div>
+      <div class="domain-node" style="--dn-color:var(--mem);" onclick="showDetail('mem-sync')">
+        <div class="dn-label">Memory Sync</div>
+        <div class="dn-name">🗄️ Weekly Audit</div>
+        <div class="dn-sub">Flags stale context. Version control. Human sign-off.</div>
+      </div>
+    </div>
+
+    <!-- ── 3 PIPELINES ── -->
+    <div class="pipelines-area" id="pipelines-area">
+
+      <!-- DEV STUDIO -->
+      <div class="pipe-col">
+        <div class="pipe-header">
+          <div class="pipe-header-dot" style="background:var(--dev)"></div>
+          <div class="pipe-header-name" style="color:var(--dev)">Dev Studio Pipeline</div>
+        </div>
+
+        <div class="human-step">
+          <span>👤</span>
+          <span class="human-step-text">Client brief enters via Slack / email / Notion intake</span>
+        </div>
+
+        <div class="agent-step" onclick="showDetail('intake')">
+          <div class="as-connector"></div>
+          <div class="as-top">
+            <span class="as-icon">📥</span>
+            <div style="flex:1;">
+              <div class="as-name">Intake & Scoping Agent</div>
+              <div class="as-role">Brief → Structured Scope Doc</div>
+            </div>
+            <span class="as-gate-badge gate-auto">AUTO</span>
+          </div>
+        </div>
+
+        <div class="qa-step">
+          <span class="qa-step-icon">🛡️</span>
+          <div>
+            <div class="qa-step-text">QA 1 — Scope completeness check</div>
+            <div class="qa-retry">↺ max 2 retries → escalate to human</div>
+          </div>
+        </div>
+
+        <div class="agent-step" onclick="showDetail('prd')">
+          <div class="as-connector"></div>
+          <div class="as-top">
+            <span class="as-icon">📋</span>
+            <div style="flex:1;">
+              <div class="as-name">PRD Agent</div>
+              <div class="as-role">Scope → Full Requirements Doc</div>
+            </div>
+            <span class="as-gate-badge gate-human">HUMAN</span>
+          </div>
+        </div>
+
+        <div class="qa-step">
+          <span class="qa-step-icon">🛡️</span>
+          <div>
+            <div class="qa-step-text">QA 2 — PRD rubric · human gate</div>
+            <div class="qa-retry">↺ max 2 retries → escalate</div>
+          </div>
+        </div>
+
+        <div class="loop-step">
+          <span style="color:var(--dev);font-size:11px;">⇄</span>
+          <span class="loop-step-text">ITERATIVE — PRD ↔ UI/UX loop until both pass QA</span>
+        </div>
+
+        <div class="agent-step" onclick="showDetail('uiux')">
+          <div class="as-connector"></div>
+          <div class="as-top">
+            <span class="as-icon">🎨</span>
+            <div style="flex:1;">
+              <div class="as-name">UI/UX Agent</div>
+              <div class="as-role">Design Spec · Components · Figma Prompts</div>
+            </div>
+            <span class="as-gate-badge gate-human">HUMAN</span>
+          </div>
+        </div>
+
+        <div class="qa-step">
+          <span class="qa-step-icon">🛡️</span>
+          <div>
+            <div class="qa-step-text">QA 3 — Design rubric · human gate</div>
+            <div class="qa-retry">↺ max 2 retries → escalate</div>
+          </div>
+        </div>
+
+        <div class="agent-step" onclick="showDetail('coder')">
+          <div class="as-connector"></div>
+          <div class="as-top">
+            <span class="as-icon">💻</span>
+            <div style="flex:1;">
+              <div class="as-name">Coder Agent</div>
+              <div class="as-role">Claude Code · GitHub · Tasks</div>
+            </div>
+            <span class="as-gate-badge gate-auto">AUTO</span>
+          </div>
+        </div>
+
+        <div class="qa-step">
+          <span class="qa-step-icon">🛡️</span>
+          <div>
+            <div class="qa-step-text">QA 4 — Lint · tests · acceptance criteria</div>
+            <div class="qa-retry">↺ max 2 retries → escalate</div>
+          </div>
+        </div>
+
+        <div class="agent-step" onclick="showDetail('delivery')">
+          <div class="as-connector"></div>
+          <div class="as-top">
+            <span class="as-icon">🚀</span>
+            <div style="flex:1;">
+              <div class="as-name">Delivery Agent</div>
+              <div class="as-role">Docs · Client Summary · Handoff</div>
+            </div>
+            <span class="as-gate-badge gate-human">HUMAN</span>
+          </div>
+        </div>
+
+        <div class="qa-step" style="border-bottom:none;">
+          <span class="qa-step-icon">🛡️</span>
+          <div>
+            <div class="qa-step-text">QA 5 — Final delivery · human approves</div>
+            <div class="qa-retry">↺ max 2 retries → escalate</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEDIA PIPELINE -->
+      <div class="pipe-col">
+        <div class="pipe-header">
+          <div class="pipe-header-dot" style="background:var(--media)"></div>
+          <div class="pipe-header-name" style="color:var(--media)">Media Pipeline</div>
+        </div>
+
+        <div class="human-step">
+          <span>👤</span>
+          <span class="human-step-text">Creative direction: trend topic / brief / paid placement flag</span>
+        </div>
+
+        <div class="agent-step" onclick="showDetail('research')">
+          <div class="as-connector"></div>
+          <div class="as-top">
+            <span class="as-icon">🔍</span>
+            <div style="flex:1;">
+              <div class="as-name">Research Agent</div>
+              <div class="as-role">Daily 07:00 WIB · Web Search · Ranked Brief</div>
+            </div>
+            <span class="as-gate-badge gate-auto">AUTO</span>
+          </div>
+        </div>
+
+        <div class="qa-step">
+          <span class="qa-step-icon">🛡️</span>
+          <div>
+            <div class="qa-step-text">QA 1 — Source credibility · angle strength</div>
+            <div class="qa-retry">↺ max 2 retries → escalate</div>
+          </div>
+        </div>
+
+        <div class="loop-step">
+          <span style="color:var(--media);font-size:11px;">⇉</span>
+          <span class="loop-step-text">PARALLEL — 3 writer sub-agents run simultaneously</span>
+        </div>
+
+        <div class="agent-step" onclick="showDetail('news-writer')">
+          <div class="as-connector"></div>
+          <div class="as-top">
+            <span class="as-icon">📰</span>
+            <div style="flex:1;">
+              <div class="as-name">News Article Agent</div>
+              <div class="as-role">500–900w · Journalistic · SEO</div>
+            </div>
+            <span class="as-gate-badge gate-async">ASYNC</span>
+          </div>
+        </div>
+
+        <div class="agent-step" onclick="showDetail('social-writer')">
+          <div class="as-top">
+            <span class="as-icon">📱</span>
+            <div style="flex:1;">
+              <div class="as-name">Social Caption Agent</div>
+              <div class="as-role">IG + Twitter · Platform-native tone</div>
+            </div>
+            <span class="as-gate-badge gate-async">ASYNC</span>
+          </div>
+        </div>
+
+        <div class="agent-step" onclick="showDetail('paid-pr')">
+          <div class="as-top">
+            <span class="as-icon">💼</span>
+            <div style="flex:1;">
+              <div class="as-name">Paid PR Agent</div>
+              <div class="as-role">Conditional · paid_post:true only</div>
+            </div>
+            <span class="as-gate-badge gate-human">HUMAN</span>
+          </div>
+        </div>
+
+        <div class="qa-step">
+          <span class="qa-step-icon">🛡️</span>
+          <div>
+            <div class="qa-step-text">QA 2 — Brand voice · facts · disclosure · 2hr rollback</div>
+            <div class="qa-retry">↺ max 2 retries → escalate</div>
+          </div>
+        </div>
+
+        <div class="agent-step" onclick="showDetail('publisher')">
+          <div class="as-connector"></div>
+          <div class="as-top">
+            <span class="as-icon">📤</span>
+            <div style="flex:1;">
+              <div class="as-name">Publishing Agent</div>
+              <div class="as-role">Instagram · Website · Scheduler</div>
+            </div>
+            <span class="as-gate-badge gate-async">ASYNC</span>
+          </div>
+        </div>
+
+        <div class="qa-step" style="border-bottom:none;">
+          <span class="qa-step-icon">🛡️</span>
+          <div>
+            <div class="qa-step-text">QA 3 — Publish confirmation · engagement log</div>
+            <div class="qa-retry">auto-approved · metrics logged to Notion</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- R&D PIPELINE -->
+      <div class="pipe-col">
+        <div class="pipe-header">
+          <div class="pipe-header-dot" style="background:var(--rnd)"></div>
+          <div class="pipe-header-name" style="color:var(--rnd)">R&D Pipeline</div>
+        </div>
+
+        <div class="human-step">
+          <span>👤</span>
+          <span class="human-step-text">Raw product idea from Akhri or entity lead</span>
+        </div>
+
+        <div class="agent-step" onclick="showDetail('ideation')">
+          <div class="as-connector"></div>
+          <div class="as-top">
+            <span class="as-icon">💡</span>
+            <div style="flex:1;">
+              <div class="as-name">Ideation & Validation Agent</div>
+              <div class="as-role">Feasibility · Comparables · Go/No-Go Brief</div>
+            </div>
+            <span class="as-gate-badge gate-human">HUMAN</span>
+          </div>
+        </div>
+
+        <div class="qa-step">
+          <span class="qa-step-icon">🛡️</span>
+          <div>
+            <div class="qa-step-text">QA 1 — Go/No-go · resource commitment gate</div>
+            <div class="qa-retry">human decides · no retries</div>
+          </div>
+        </div>
+
+        <div class="agent-step" onclick="showDetail('prd')">
+          <div class="as-connector"></div>
+          <div class="as-top">
+            <span class="as-icon">📋</span>
+            <div style="flex:1;">
+              <div class="as-name">PRD Agent</div>
+              <div class="as-role">Shared · POC-scoped (1 core feature)</div>
+            </div>
+            <span class="as-gate-badge gate-human">HUMAN</span>
+          </div>
+        </div>
+
+        <div class="qa-step">
+          <span class="qa-step-icon">🛡️</span>
+          <div>
+            <div class="qa-step-text">QA 2 — PRD rubric · stage-aware scope check</div>
+            <div class="qa-retry">↺ max 2 retries → escalate</div>
+          </div>
+        </div>
+
+        <div class="loop-step">
+          <span style="color:var(--rnd);font-size:11px;">⇄</span>
+          <span class="loop-step-text">ITERATIVE — UI/UX ↔ PRD loop (text wireframes for POC)</span>
+        </div>
+
+        <div class="agent-step" onclick="showDetail('uiux')">
+          <div class="as-connector"></div>
+          <div class="as-top">
+            <span class="as-icon">🎨</span>
+            <div style="flex:1;">
+              <div class="as-name">UI/UX Agent</div>
+              <div class="as-role">Shared · POC = text wireframes only</div>
+            </div>
+            <span class="as-gate-badge gate-human">HUMAN</span>
+          </div>
+        </div>
+
+        <div class="agent-step" onclick="showDetail('coder')">
+          <div class="as-top">
+            <span class="as-icon">💻</span>
+            <div style="flex:1;">
+              <div class="as-name">Coder Agent</div>
+              <div class="as-role">Shared · POC = speed over polish</div>
+            </div>
+            <span class="as-gate-badge gate-auto">AUTO</span>
+          </div>
+        </div>
+
+        <div class="qa-step">
+          <span class="qa-step-icon">🛡️</span>
+          <div>
+            <div class="qa-step-text">QA 3 — Core assumption demonstrable?</div>
+            <div class="qa-retry">↺ max 2 retries → escalate</div>
+          </div>
+        </div>
+
+        <div class="agent-step" onclick="showDetail('stagegate')">
+          <div class="as-connector"></div>
+          <div class="as-top">
+            <span class="as-icon">📈</span>
+            <div style="flex:1;">
+              <div class="as-name">Stage Gate Agent</div>
+              <div class="as-role">POC→MVP: 3/3 evidence · MVP→Prod: 4/6</div>
+            </div>
+            <span class="as-gate-badge gate-human">HUMAN</span>
+          </div>
+        </div>
+
+        <div class="qa-step" style="border-bottom:none;">
+          <span class="qa-step-icon">🛡️</span>
+          <div>
+            <div class="qa-step-text">QA 4 — Evidence checklist complete · human checks boxes in Notion</div>
+            <div class="qa-retry">cannot advance without evidence</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /pipelines-area -->
+
+    <!-- DETAIL PANEL (inside pipeline col) -->
+    <div class="detail-panel" id="detail-panel">
+      <div class="dp-header">
+        <div>
+          <div class="dp-title" id="dp-title">—</div>
+          <div class="dp-sub" id="dp-sub">—</div>
+        </div>
+        <button class="dp-close" onclick="closeDetail()">✕ close</button>
+      </div>
+      <div class="dp-grid" id="dp-grid"></div>
+      <div class="dp-rubric" id="dp-rubric" style="display:none;"></div>
+    </div>
+
+    <!-- ── ERROR PROTOCOL ── -->
+    <div class="error-row">
+      <span class="ef-label">ERROR PROTOCOL →</span>
+      <div class="error-flow">
+        <div class="ef-box" style="border-color:var(--border2);color:var(--muted)">Attempt 1</div>
+        <span class="ef-arrow">→</span>
+        <div class="ef-box" style="border-color:var(--qa);color:var(--qa)">QA FAIL</div>
+        <span class="ef-arrow">→</span>
+        <div class="ef-box" style="border-color:var(--border2);color:var(--muted)">Attempt 2 + reason</div>
+        <span class="ef-arrow">→</span>
+        <div class="ef-box" style="border-color:var(--qa);color:var(--qa)">QA FAIL</div>
+        <span class="ef-arrow">→</span>
+        <div class="ef-box" style="border-color:var(--human);color:var(--human)">🚨 ESCALATE</div>
+        <span class="ef-arrow">→</span>
+        <div class="ef-box" style="border-color:var(--async);color:var(--async)">Slack DM → Akhri</div>
+        <span class="ef-arrow">→</span>
+        <div class="ef-box" style="border-color:var(--muted);color:var(--muted)">RETRY / SKIP / MANUAL</div>
+      </div>
+    </div>
+
+    <!-- ── MEMORY STRIP ── -->
+    <div class="memory-strip">
+      <span class="ms-label">🗄️ MEMORY LAYER →</span>
+      <div class="ms-docs">
+        <span class="ms-doc">epik_structure</span>
+        <span class="ms-doc">team_roles</span>
+        <span class="ms-doc">gudangin_spec</span>
+        <span class="ms-doc">mycelium_spec</span>
+        <span class="ms-doc">infia_voice</span>
+        <span class="ms-doc">parallax_pitch</span>
+        <span class="ms-doc">prd_rubric</span>
+        <span class="ms-doc">uiux_rubric</span>
+        <span class="ms-doc">code_rubric</span>
+        <span class="ms-doc">media_rubric</span>
+        <span class="ms-doc">stage_evidence</span>
+        <span class="ms-doc stale">⚠ popcard_spec (stale?)</span>
+      </div>
+    </div>
+
+    <!-- ── TASK STATES ── -->
+    <div class="task-states-row">
+      <span class="ts-label">TASK STATES →</span>
+      <span class="ts-badge" style="background:rgba(0,255,178,0.08);border:1px solid rgba(0,255,178,0.2);color:var(--auto)">PENDING</span>
+      <span class="ts-badge" style="background:rgba(77,158,255,0.08);border:1px solid rgba(77,158,255,0.2);color:var(--dev)">CONFIRMED</span>
+      <span class="ts-badge" style="background:rgba(61,255,160,0.08);border:1px solid rgba(61,255,160,0.2);color:var(--rnd)">IN_PROGRESS</span>
+      <span class="ts-badge" style="background:rgba(255,61,107,0.08);border:1px solid rgba(255,61,107,0.2);color:var(--qa)">QA_REVIEW</span>
+      <span class="ts-badge" style="background:rgba(192,132,252,0.08);border:1px solid rgba(192,132,252,0.2);color:var(--human)">BLOCKED</span>
+      <span class="ts-badge" style="background:rgba(255,61,107,0.12);border:1px solid rgba(255,61,107,0.3);color:var(--qa)">ESCALATED</span>
+      <span class="ts-badge" style="background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.2);color:var(--mem)">DEAD_LETTER</span>
+      <span class="ts-badge" style="background:rgba(0,255,178,0.04);border:1px solid rgba(0,255,178,0.1);color:var(--muted)">COMPLETED</span>
+    </div>
+
+    <!-- ── FOUNDATION ── -->
+    <div class="foundation-row">
+      <div class="found-cell">
+        <div class="found-title" style="color:var(--mem)">🗄️ Memory & Context Layer</div>
+        <div class="found-items">
+          <div class="found-item"><div class="found-dot" style="background:var(--mem)"></div>Notion DB · versioned · expiry dates</div>
+          <div class="found-item"><div class="found-dot" style="background:var(--mem)"></div>Weekly sync agent · human sign-off</div>
+          <div class="found-item"><div class="found-dot" style="background:var(--mem)"></div>QA rubric files · 7 documents</div>
+          <div class="found-item"><div class="found-dot" style="background:var(--mem)"></div>Stage evidence checklists</div>
+          <div class="found-item"><div class="found-dot" style="background:var(--mem)"></div>Vector store upgrade: phase 2</div>
+        </div>
+      </div>
+      <div class="found-cell">
+        <div class="found-title" style="color:var(--async)">⚡ Trigger & Routing Layer</div>
+        <div class="found-items">
+          <div class="found-item"><div class="found-dot" style="background:var(--async)"></div>n8n · Slack → EPIK Brain webhook</div>
+          <div class="found-item"><div class="found-dot" style="background:var(--async)"></div>Daily 07:00 cron → Research Agent</div>
+          <div class="found-item"><div class="found-dot" style="background:var(--async)"></div>Weekly Monday cron → Memory Sync</div>
+          <div class="found-item"><div class="found-dot" style="background:var(--async)"></div>GitHub push → QA notify</div>
+          <div class="found-item"><div class="found-dot" style="background:var(--async)"></div>Escalation → Slack DM to Akhri</div>
+        </div>
+      </div>
+      <div class="found-cell">
+        <div class="found-title" style="color:var(--qa)">📋 Task Log</div>
+        <div class="found-items">
+          <div class="found-item"><div class="found-dot" style="background:var(--qa)"></div>All tasks: ID · state · timestamps</div>
+          <div class="found-item"><div class="found-dot" style="background:var(--qa)"></div>Routing confirmations (30min SLA)</div>
+          <div class="found-item"><div class="found-dot" style="background:var(--qa)"></div>Dead-letter queue · manual review</div>
+          <div class="found-item"><div class="found-dot" style="background:var(--qa)"></div>Retry logs + failure reasons</div>
+          <div class="found-item"><div class="found-dot" style="background:var(--qa)"></div>90-day archive</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pipeline-col -->
+</div><!-- /main -->
+</div><!-- /canvas -->
+
+<script>
+const details = {
+  orchestrator: {
+    title:'🧠 EPIK Brain — Orchestrator', sub:'Tier 0 · Master coordinator · All pipelines route through here', color:'var(--orch)',
+    cols:[
+      {title:'Responsibilities', items:['Receives goals from Akhri via Slack or Notion','Routes tasks to correct domain lead with task_id','Waits for routing confirmation within 30 minutes','Re-routes or escalates on timeout — never silent','Weekly digest of all pipeline status to Akhri','Maintains Dead-Letter Queue for failed routing']},
+      {title:'Routing Confirmation Loop', items:['Task dispatched → domain lead must confirm in 5min','Orchestrator marks task CONFIRMED in task log','30min with no confirm → re-route attempt','2nd failed route → DEAD_LETTER + Slack alert','Human can re-route from DLQ via Slack reply command','Every task has a traceable lifecycle state']},
+      {title:'Tools & Build', items:['Claude API (Sonnet) + system prompt with EPIK context','n8n: Slack DM webhook → EPIK Brain → routing logic','Notion task log API for state management','Build in Week 1 alongside Memory Layer','This is the first thing you touch after filling Notion']}
+    ],
+    rubric:null
+  },
+  'dev-lead': {
+    title:'🏗️ Dev Studio Lead', sub:'Domain Head · Tier 1 · Owns client delivery end-to-end', color:'var(--dev)',
+    cols:[
+      {title:'Responsibilities', items:['Receives brief from Orchestrator, sends routing confirmation','Manages Intake → PRD → UI/UX → Code → Delivery loop','Surfaces blockers to EPIK Brain','Reports project status on each stage completion','Handles client communication routing via Slack']},
+      {title:'Gate Authority', items:['QA 1 (Scope): auto-approve','QA 2 (PRD): human-in-loop — client contract risk','QA 3 (UI/UX): human-in-loop — before dev cost','QA 4 (Code): auto-approve if tests pass','QA 5 (Delivery): human-in-loop — client-facing']},
+      {title:'Build Notes', items:['Configure after EPIK Brain and Memory Layer are stable','System prompt includes all Dev Studio context from Memory Layer','Week 3 target']}
+    ]
+  },
+  'media-lead': {
+    title:'📡 Media Lead', sub:'Domain Head · Tier 1 · Infia Techno · 1M followers', color:'var(--media)',
+    cols:[
+      {title:'Responsibilities', items:['Human (Akhri or team) sets creative direction daily','Routes: trend topic vs paid brief to correct sub-agents','Manages posting schedule via n8n','Ensures Infia brand consistency across outputs','Reports content performance weekly to EPIK Brain']},
+      {title:'Gate Authority', items:['QA 1 (Research): auto-approve','QA 2 (Content): async — 2hr rollback window for organic','Paid PR: always human-in-loop — compliance risk','QA 3 (Publish): auto-approve after human approved content']},
+      {title:'Build Notes', items:['Week 2 — highest immediate ROI pipeline','Infia brand voice doc in Memory Layer is the key dependency','Research Agent + Writer Agents can be built in days']}
+    ]
+  },
+  'rnd-lead': {
+    title:'🔬 R&D Lead', sub:'Domain Head · Tier 1 · POC → MVP → Production', color:'var(--rnd)',
+    cols:[
+      {title:'Responsibilities', items:['Owns all internal product development at EPIK','Prioritizes which product gets R&D resources','Shares PRD, UI/UX, Coder agents with Dev Studio','Stage gates each product with hard evidence checklists','Reports product stage status to EPIK Brain weekly']},
+      {title:'Stage Gate Rules', items:['POC→MVP: 3/3 evidence required (tested, feasible, signed-off)','MVP→Prod: 4/6 evidence required (10+ users, metrics, security, docs, errors, stakeholder)','Human must check Notion boxes — agent cannot self-advance','Stale product (30+ days same stage) triggers weekly nudge']},
+      {title:'Build Notes', items:['Week 3–4 — shares most agents with Dev Studio','Ideation Agent is unique to this pipeline','Stage Gate Agent formalizes what happens manually now']}
+    ]
+  },
+  'mem-sync': {
+    title:'🗄️ Memory Sync Agent', sub:'Weekly audit · Context versioning · Staleness detection', color:'var(--mem)',
+    cols:[
+      {title:'How It Works', items:['Runs every Monday 09:00 WIB via n8n cron','Checks last_updated timestamp on every Memory Layer doc','Flags any doc older than 30 days as potentially stale','Sends Slack digest to Akhri: list of flagged docs','After human reviews: version number increments, reviewed_by updated','Agents re-load context if version changed since last run']},
+      {title:'Document Schema', items:['doc_id · category · version (v1, v2…)','last_updated: ISO timestamp','reviewed_by: human name','expires_after: 30d / 90d / never','used_by: which agents load this doc']},
+      {title:'Build Notes', items:['Phase 4 — Week 6–7','Simple n8n workflow checking Notion page updated_at fields','Slack message with Notion links is enough to start','Vector store upgrade (Supabase + pgvector) is phase 2']}
+    ]
+  },
+  intake: {
+    title:'📥 Intake & Scoping Agent', sub:'Dev Studio · Entry point · Brief → Structured Scope Doc', color:'var(--dev)',
+    cols:[
+      {title:'What It Does', items:['Parses client brief from any format (Slack, email, Notion)','Asks up to 5 structured clarifying questions via Slack','Extracts: project type, stack, timeline, budget, success criteria','Outputs a standardized scope doc to Notion','Loads scope completeness rubric from Memory Layer','Auto-approve gate if rubric score ≥ 80%']},
+      {title:'QA Gate 1 — AUTO', items:['Rubric: scope_rubric.md from Memory Layer','Checks: all required fields present, no ambiguous language','Threshold: 80% → auto-pass, <80% → retry','Max 2 retries, then escalate to human','Escalation message includes: input brief + rubric score + gaps']},
+      {title:'Build', items:['Claude API with structured output (JSON scope doc)','n8n: routes scope doc to PRD Agent on auto-pass','Week 3 — after EPIK Brain and Media pipeline stable']}
+    ],
+    rubric:'SCOPE RUBRIC (scope_rubric.md)\n[ ] Project type identified (web / mobile / smart contract / other)\n[ ] Primary stakeholder or client named\n[ ] Core feature list present (even if rough)\n[ ] Timeline or deadline mentioned\n[ ] Tech stack preference noted (or explicitly unknown)\n[ ] Success criteria defined\n[ ] Out-of-scope explicitly stated\n[ ] Budget range or constraint noted'
+  },
+  prd: {
+    title:'📋 PRD Agent', sub:'Shared · Dev Studio + R&D · Stage-aware scope mode', color:'var(--dev)',
+    cols:[
+      {title:'What It Does', items:['Reads scope doc from Notion (Dev) or feasibility brief (R&D)','Generates full PRD: user roles, features, user flows, acceptance criteria, tech constraints','POC mode: 1 core feature, hardcoded is fine','MVP mode: full feature set, no performance optimization yet','Production mode: full spec including non-functionals','Loads prd_rubric.md before every evaluation']},
+      {title:'QA Gate 2 — HUMAN', items:['Rubric: prd_rubric.md from Memory Layer','Checks: all user roles defined, acceptance criteria per feature, scope bounded, no ambiguous language','Human-in-loop: too much cost/client risk to auto-approve','Max 2 retries before escalation','Iterative with UI/UX Agent until both pass']},
+      {title:'Build', items:['Single agent with stage-mode parameter (POC/MVP/PROD)','Context from Memory Layer: product specs, tech constraints','Week 3 — one build covers both Dev Studio and R&D']}
+    ],
+    rubric:'PRD RUBRIC (prd_rubric.md)\n[ ] All user roles defined (max 3 for POC)\n[ ] Acceptance criteria present — per feature, testable\n[ ] Tech stack specified or explicitly deferred\n[ ] No ambiguous language: no "should", "might", "could"\n[ ] Scope is bounded — what is explicitly OUT of scope\n[ ] Timeline estimate present (rough is fine)\n[ ] At least 1 non-functional requirement noted\n[ ] Stage-appropriate depth (POC ≠ Production)'
+  },
+  uiux: {
+    title:'🎨 UI/UX Agent', sub:'Shared · Dev Studio + R&D · Design spec · Figma prompts', color:'var(--dev)',
+    cols:[
+      {title:'What It Does', items:['Reads approved PRD from Notion','Generates: screen inventory, component list, user flow diagrams (text-based)','Writes Figma AI prompt instructions per screen','POC mode: text wireframes only — no visual polish','MVP mode: full component spec, responsive layout','Flags PRD inconsistencies back to PRD Agent (loop)']},
+      {title:'QA Gate 3 — HUMAN', items:['Rubric: uiux_rubric.md from Memory Layer','Checks: all PRD screens covered, components listed, flows logical, no missing states','Human-in-loop: approves before dev cost starts','Max 2 retries before escalation','Loop with PRD Agent until both pass QA']},
+      {title:'Build', items:['Phase 3 — Week 4–5','Text-based output is enough to start (no Figma API needed yet)','Figma plugin integration is a later upgrade','Humans handle Figma initially — agent generates the instructions']}
+    ]
+  },
+  coder: {
+    title:'💻 Coder Agent', sub:'Shared · Dev Studio + R&D · Claude Code · GitHub', color:'var(--dev)',
+    cols:[
+      {title:'What It Does', items:['Reads approved PRD + design spec from Notion','Generates GitHub Issues as task breakdown','Writes boilerplate code, smart contracts, component scaffolding','Runs iteratively via Claude Code CLI','Commits to GitHub with structured PR descriptions','POC: speed over quality · Production: full test coverage']},
+      {title:'QA Gate 4 — AUTO', items:['Rubric: code_rubric.md from Memory Layer','Auto-approve if: linting passes, tests pass, acceptance criteria met','Checks against PRD acceptance criteria programmatically','Max 2 retries before escalation','For Web3: includes contract audit checklist']},
+      {title:'Build', items:['Available NOW via Claude Code CLI','Add CLAUDE.md context files to all Parallax repos this week','CLAUDE.md should reference: product spec, tech stack, coding standards','This is the easiest agent to activate — no new infrastructure needed']}
+    ],
+    rubric:'CODE RUBRIC (code_rubric.md)\n[ ] Linting passes (no errors, warnings acceptable)\n[ ] Unit tests pass (min coverage per stage: POC=0, MVP=60%, Prod=80%)\n[ ] All acceptance criteria from PRD implemented\n[ ] No hardcoded secrets or API keys\n[ ] README updated with any new setup steps\n[ ] Web3: no reentrancy vulnerabilities in contracts\n[ ] Error handling on all external API calls\n[ ] PR description matches work done'
+  },
+  delivery: {
+    title:'🚀 Delivery Agent', sub:'Dev Studio · Exit point · Client handoff', color:'var(--dev)',
+    cols:[
+      {title:'What It Does', items:['Compiles docs: README, deployment guide, changelog','Generates non-technical client summary (plain language)','Packages all deliverables to Notion client space','Notifies client via Slack or email','Archives project to Memory Layer task log']},
+      {title:'QA Gate 5 — HUMAN', items:['Checks: docs complete, no open issues, client summary accurate','Human-in-loop — client-facing, irreversible','Max 2 retries before escalation','Akhri or delivery lead must approve before any client contact']},
+      {title:'Build', items:['Phase 3 — Week 5','Simple Claude prompt + Notion page template','Slack/email notification via n8n']}
+    ]
+  },
+  research: {
+    title:'🔍 Research Agent', sub:'Media · Daily 07:00 WIB · Web search · Ranked topic brief', color:'var(--media)',
+    cols:[
+      {title:'What It Does', items:['Scheduled daily at 07:00 WIB via n8n cron','Also triggered on-demand when brief provided by human','Searches: Web3, crypto, tech trends + Indonesia-specific angle','Evaluates trending topics by relevance to Infia audience','Outputs ranked brief: topic, angle, sources, key facts, suggested format','Flags paid_post: true if brief indicates placement']},
+      {title:'QA Gate 1 — AUTO', items:['Rubric: research_rubric.md','Checks: ≥2 credible sources, angle relevant to audience, no factually questionable claims','Auto-approve if score ≥ 80%','Retry: re-search with broader or narrower query','Escalate after 2 fails: human picks topic manually']},
+      {title:'Build', items:['Week 2 — build this first in Media pipeline','Claude API with web search tool enabled','n8n cron job is 5 lines of workflow','Delivers immediate value to Infia team day 1']}
+    ]
+  },
+  'news-writer': {
+    title:'📰 News Article Agent', sub:'Media · Separate sub-agent · Journalistic voice · 500–900w', color:'var(--media)',
+    cols:[
+      {title:'What It Does', items:['Reads research brief from Notion','Applies Infia editorial voice from Memory Layer (infia_voice.md)','Structure: lede → context → expert view/data → conclusion','500–900 words, SEO-aware headline and structure','Never mixes with Paid PR content — separate Notion page','Runs in parallel with Social Caption Agent']},
+      {title:'QA Gate 2 — ASYNC', items:['Rubric: media_article_rubric.md','Checks: tone matches brand voice, factually accurate, structure complete, no unverified claims','ASYNC gate: team notified, pipeline continues','2-hour rollback window before publish','If flagged within 2hr: pipeline pauses, human reviews']},
+      {title:'Build', items:['Week 2 — same sprint as Research Agent','Separate system prompt from Social Caption Agent','Infia brand voice doc is the key input — write this first']}
+    ],
+    rubric:'ARTICLE RUBRIC (media_article_rubric.md)\n[ ] Lede answers: who, what, when, where (if applicable)\n[ ] All factual claims have a source in the research brief\n[ ] Tone matches Infia editorial voice (check voice doc)\n[ ] No clickbait headline — accurate and specific\n[ ] Word count 500–900\n[ ] No promotional language unless flagged as paid\n[ ] Conclusion present and not abrupt\n[ ] SEO: primary keyword in headline and first paragraph'
+  },
+  'social-writer': {
+    title:'📱 Social Caption Agent', sub:'Media · Platform-native tone · IG + Twitter · Runs parallel', color:'var(--media)',
+    cols:[
+      {title:'What It Does', items:['Reads same research brief as News Article Agent','Separate system prompt per platform loaded from Memory Layer','Instagram: visual-first, punchy, 150–220 chars, hashtags','Twitter: sharp take or thread opener, max 280 chars','Both run simultaneously — separate outputs in Notion','Tone is distinct from article: more conversational, direct']},
+      {title:'QA Gate 2 — ASYNC', items:['Rubric: media_social_rubric.md','Checks: platform-native tone, no factual errors, CTA present, within char limit','Same ASYNC gate as article: 2hr rollback window','Common fail: corporate language bleeding in from article style']},
+      {title:'Build', items:['Week 2 — same build as News Article Agent','Load platform-specific style guides into Memory Layer first','2 separate output sections in Notion per content piece']}
+    ]
+  },
+  'paid-pr': {
+    title:'💼 Paid PR Agent', sub:'Media · Conditional · Only fires when paid_post: true', color:'var(--media)',
+    cols:[
+      {title:'What It Does', items:['Triggered only when research brief has paid_post: true flag','Loads sponsor-specific guidelines from Memory Layer (sponsor_guidelines/)','Rewrites in brand-safe, neutral, compliant language','Adds required disclosure labels (#ad, #sponsored, Paid Partnership)','Outputs to separate Notion page — never mixed with organic','Tone hierarchy: sponsor guidelines > Infia voice']},
+      {title:'QA Gate — HUMAN', items:['Rubric: paid_pr_rubric.md','Checks: disclosure label present, sponsor guidelines met, separated from organic content, no misleading claims','Always human-in-loop — compliance and reputation risk','No async option for paid content','Human must physically approve before any publish action']},
+      {title:'Build', items:['Phase 4 — Week 6–7','Build after organic media pipeline is proven and stable','Create sponsor_guidelines/ folder in Memory Layer when first client onboards']}
+    ]
+  },
+  publisher: {
+    title:'📤 Publishing Agent', sub:'Media · Instagram + Website · Scheduler · Engagement log', color:'var(--media)',
+    cols:[
+      {title:'What It Does', items:['Receives approved content after final QA gate','Schedules posts at optimal engagement times per platform','Posts to: Instagram (static + caption), website (article)','Logs publish confirmation + URL to Notion task log','Pulls 24h engagement metrics and reports to Media Lead','Does not publish until all QA gates have passed']},
+      {title:'Tools', items:['Instagram Graph API for direct posting','Website CMS API or webhook for article publish','n8n scheduler for optimal time slots','Buffer/Later as fallback if direct API fails','Engagement metrics pulled via Instagram API']},
+      {title:'Build', items:['Phase 3 — after writer agents proven stable','Start with n8n → Buffer for scheduling (simpler)','Migrate to direct Instagram API when volume justifies it']}
+    ]
+  },
+  ideation: {
+    title:'💡 Ideation & Validation Agent', sub:'R&D · Raw idea → Feasibility brief → Go/No-go', color:'var(--rnd)',
+    cols:[
+      {title:'What It Does', items:['Accepts raw idea in plain language (1 paragraph is enough)','Searches for comparable existing solutions (web search)','Identifies: market gap, technical complexity, estimated timeline','Flags showstoppers: regulatory, technical, resource constraints','Outputs 1-page feasibility brief with explicit Go/No-go recommendation','Does not commit any resources — just analysis']},
+      {title:'QA Gate 1 — HUMAN', items:['This gate is always human — resource commitment decision','No retry logic: human either approves or rejects with reason','Rejection reason archived in Notion for future reference','If Go: brief passed to PRD Agent with stage set to POC','If No-Go: idea archived with reasoning — not discarded silently']},
+      {title:'Build', items:['Phase 4 — Week 5–6','Claude API + web search','Simplest R&D agent to build — mostly a well-crafted prompt','High value: prevents wasted sprints on bad ideas']}
+    ]
+  },
+  stagegate: {
+    title:'📈 Stage Gate Agent', sub:'R&D · POC→MVP→Production · Hard evidence checklists', color:'var(--rnd)',
+    cols:[
+      {title:'Stage Transition Rules', items:['POC → MVP: 3/3 evidence required','  1. Core assumption tested with real user','  2. Technical feasibility confirmed (hardest integration works)','  3. Go decision recorded by Akhri in Notion','MVP → Prod: 4/6 evidence required','  Options: 10+ users tested · metrics defined · security review · docs complete · error handling · stakeholder sign-off']},
+      {title:'How the Agent Works', items:['Reads Notion Stage Evidence Table per product','Cannot advance stage if required checkboxes are unchecked','Human must physically check boxes in Notion — no self-certification','Sends weekly nudge if product stalled 30+ days in same stage','Provides audit trail: every product\'s full progression history','On stage advance: updates PRD Agent context mode (POC/MVP/Prod)']},
+      {title:'Build', items:['Phase 4 — Week 7–8','Notion DB with Stage Evidence Table per product','n8n reads checkbox states weekly and triggers nudges','Formalizes what should already happen manually']}
+    ]
+  }
+};
+
+let currentDetail = null;
+
+function showDetail(id) {
+  const d = details[id];
+  if (!d) return;
+
+  if (currentDetail === id) { closeDetail(); return; }
+  currentDetail = id;
+
+  document.getElementById('dp-title').textContent = d.title;
+  document.getElementById('dp-sub').textContent = d.sub;
+
+  const grid = document.getElementById('dp-grid');
+  grid.style.setProperty('--dp-color', d.color);
+  grid.innerHTML = d.cols.map(col => `
+    <div class="dp-col">
+      <h5>${col.title}</h5>
+      <ul>${col.items.map(i => `<li>${i}</li>`).join('')}</ul>
+    </div>
+  `).join('');
+
+  const rubricEl = document.getElementById('dp-rubric');
+  if (d.rubric) {
+    rubricEl.style.display = 'block';
+    rubricEl.innerHTML = `<div class="dp-rubric-title">// RUBRIC FILE PREVIEW</div>${d.rubric}`;
+  } else {
+    rubricEl.style.display = 'none';
+  }
+
+  document.querySelectorAll('.agent-step, .domain-node, .orch-node').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  const panel = document.getElementById('detail-panel');
+  panel.classList.add('show');
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('show');
+  document.querySelectorAll('.agent-step, .domain-node, .orch-node').forEach(el => el.classList.remove('active'));
+  currentDetail = null;
+}
+</script>
+</body>
+</html>
